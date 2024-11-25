@@ -4,10 +4,7 @@ USER root
 
 RUN set -ex; \
     apt-get update; \
-    apt-get install -y software-properties-common; \
-    add-apt-repository ppa:deadsnakes/ppa; \
-    apt-get update; \
-    apt-get install -y python3.8 python3.8-pip && \
+    apt-get install -y python3 python3-pip && \
     pip3 install pipenv && \
     apt -y autoremove && \
     apt -y clean && \

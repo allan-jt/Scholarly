@@ -11,6 +11,8 @@ services:
     restart: on-failure
     networks:
       - default
+    depends_on:
+      - backend
   
   backend:
     user: root
