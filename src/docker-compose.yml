@@ -1,0 +1,31 @@
+services:
+  frontend:
+    user: root
+    build: ./frontend
+    expose:
+      - 5173
+    ports:
+      - 5173:5173
+    volumes:
+      - ./frontend/react_app:/app
+    restart: on-failure
+    networks:
+      - default
+  
+  backend:
+    user: root
+    build: ./backend
+    expose:
+      - 8000
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend/fastapi_app:/app
+    restart: on-failure
+    networks:
+      - default
+
+
+networks:
+  default:
+    driver: bridge
