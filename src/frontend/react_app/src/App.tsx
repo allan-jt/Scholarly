@@ -11,7 +11,7 @@ function App() {
       console.log(res.data)
       setApi1(res.data)
     })
-    axios.get('http://localhost:8000/hello/allan').then((res) => {
+    axios.get('http://localhost:8000/hello1/allan').then((res) => {
       setApi2(res.data)
     })
   }, [])

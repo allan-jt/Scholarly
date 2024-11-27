@@ -1,5 +1,7 @@
 services:
   frontend:
+    container_name: react
+    image: react:custom
     user: root
     build: ./frontend
     expose:
@@ -10,11 +12,13 @@ services:
       - ./frontend/react_app:/app
     restart: on-failure
     networks:
-      - default
+      - febe
     depends_on:
       - backend
   
   backend:
+    container_name: fastapi
+    image: fastapi:custom
     user: root
     build: ./backend
     expose:
@@ -25,12 +29,15 @@ services:
       - ./backend/fastapi_app:/app
     restart: on-failure
     networks:
-      - default
+      - bedb
+      - febe
     depends_on:
       database:
         condition: service_healthy
     
   database:
+    container_name: redis
+    image: redis:custom
     user: root
     build: ./database
     expose:
@@ -39,7 +46,7 @@ services:
       - 6379:6379
     restart: on-failure
     networks:
-      - default
+      - bedb
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -48,5 +55,8 @@ services:
 
 
 networks:
-  default:
+  bedb:
     driver: bridge
+  febe:
+    driver: bridge
+  

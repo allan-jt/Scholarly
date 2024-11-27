@@ -7,10 +7,12 @@ import aioredis
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # On startup
-    app.state.redis = await aioredis.from_url("redis://database:6379")
+    app.state.redis_results = await aioredis.from_url("redis://database:6379/1")
+    app.state.redis_other = await aioredis.from_url("redis://database:6379/2")
     yield
     # On shutdown
-    await app.state.redis.close()
+    await app.state.redis_results.close()
+    await app.state.redis_other.close()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -30,12 +32,23 @@ def read_root():
     return "Hello, World!"
 
 
-@app.get("/hello/{name}")
+@app.get("/hello1/{name}")
 async def say_hello(name: str):
-    cache = await app.state.redis.get(name)
+    cache = await app.state.redis_results.get(name)
     if cache:
         return f"{name} from Redis!"
 
     # key | value | expiration in seconds
-    await app.state.redis.set(name, "Hello World!", ex=30)
+    await app.state.redis_results.set(name, "Hello World!", ex=30)
+    return f"Hello {name}!"
+
+
+@app.get("/hello2/{name}")
+async def say_hello(name: str):
+    cache = await app.state.redis_other.get(name)
+    if cache:
+        return f"{name} from Redis!"
+
+    # key | value | expiration in seconds
+    await app.state.redis_other.set(name, "Hello World!", ex=30)
     return f"Hello {name}!"
