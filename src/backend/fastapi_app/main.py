@@ -1,7 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+import aioredis
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # On startup
+    app.state.redis = await aioredis.from_url("redis://database:6379")
+    yield
+    # On shutdown
+    await app.state.redis.close()
+
+
+app = FastAPI(lifespan=lifespan)
 
 # Configure CORS
 app.add_middleware(
@@ -19,5 +31,11 @@ def read_root():
 
 
 @app.get("/hello/{name}")
-def say_hello(name: str):
+async def say_hello(name: str):
+    cache = await app.state.redis.get(name)
+    if cache:
+        return f"{name} from Redis!"
+
+    # key | value | expiration in seconds
+    await app.state.redis.set(name, "Hello World!", ex=30)
     return f"Hello {name}!"

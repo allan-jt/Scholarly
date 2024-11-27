@@ -5,6 +5,10 @@ name = "pypi"
 
 [packages]
 fastapi = {extras = ["standard"], version = "*"}
+redis = "*"
+aioredis = "*"
+requests = "*"
+langchain = "*"
 
 [dev-packages]
 

@@ -26,6 +26,25 @@ services:
     restart: on-failure
     networks:
       - default
+    depends_on:
+      database:
+        condition: service_healthy
+    
+  database:
+    user: root
+    build: ./database
+    expose:
+      - 6379
+    ports:
+      - 6379:6379
+    restart: on-failure
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
 
 
 networks:
