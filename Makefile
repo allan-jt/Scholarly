@@ -5,9 +5,9 @@ BACKEND_CONTNR	= fastapi
 FRONTEND_CONTNR	= react
 DATABASE_CONTNR	= redis
 
-BACKEN_IMAGE	= fastapi:custom
+BACKEND_IMAGE	= fastapi:custom
 FRONTEND_IMAGE	= react:custom
-DATABASE_IMAGE	= redis:latest
+DATABASE_IMAGE	= redis:custom
 
 BEDB_NETWORK	= bedb
 FEBE_NETWORK	= febe
@@ -43,7 +43,7 @@ rm_containers:
 	docker rm -f ${BACKEND_CONTNR} ${FRONTEND_CONTNR} ${DATABASE_CONTNR}
 
 rm_images:
-	docker rmi -f ${BACKEN_IMAGE} ${FRONTEND_IMAGE} ${DATABASE_IMAGE}
+	docker rmi -f ${BACKEND_IMAGE} ${FRONTEND_IMAGE} ${DATABASE_IMAGE}
 
 rm_networks:
 	if docker network inspect ${BEDB_NETWORK} > /dev/null; then \
