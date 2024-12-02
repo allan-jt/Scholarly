@@ -7,8 +7,17 @@ name = "pypi"
 fastapi = {extras = ["standard"], version = "*"}
 redis = "*"
 aioredis = "*"
+openai = "*"
 requests = "*"
+httpx = "*"
+langchain-groq = "*"
+tiktoken = "*"
 langchain = "*"
+langgraph = "*"
+beautifulsoup4 = "*"
+langchain-community = "*"
+nest-asyncio = "*"
+transformers = "*"
 
 [dev-packages]
 
