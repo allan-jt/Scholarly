@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import aioredis
 
 # Local application imports
-from routes import arxiv
+from routes import query
 
 
 @asynccontextmanager
@@ -33,7 +33,7 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(arxiv, prefix="/arxiv")
+app.include_router(query, prefix="/query")
 
 @app.get("/")
 def read_root():

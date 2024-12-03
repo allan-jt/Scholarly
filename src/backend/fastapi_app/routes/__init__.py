@@ -1,1 +1,1 @@
-from .arxiv import router as arxiv
+from .query import router as query
