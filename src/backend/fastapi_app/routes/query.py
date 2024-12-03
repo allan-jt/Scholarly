@@ -4,7 +4,7 @@ from routes.arxiv import fetch_arxiv
 
 router = APIRouter()
 
-@router.get('/')
+@router.get('')
 async def query(all: str):
     data = await query_advanced(all=all)
 
