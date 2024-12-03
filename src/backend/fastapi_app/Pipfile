@@ -9,6 +9,8 @@ redis = "*"
 aioredis = "*"
 requests = "*"
 langchain = "*"
+aiohttp = "*"
+xmltodict = "*"
 
 [dev-packages]
 
