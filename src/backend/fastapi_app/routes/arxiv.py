@@ -5,7 +5,7 @@ import xmltodict
 router = APIRouter()
 
 @router.get('/')
-async def query_arxiv(
+async def fetch_arxiv(
     title: str | None = None,
     author: str | None = None,
     abstract: str | None = None,
