@@ -1,27 +1,16 @@
 from fastapi import HTTPException
 import aiohttp
 import xmltodict
+from models.arxiv import QueryPrefixes, QueryConfig
 
 async def fetch(
-    title: str | None = None,
-    author: str | None = None,
-    abstract: str | None = None,
-    comment: str | None = None,
-    journal_reference: str | None = None,
-    subject_category: str | None = None,
-    report_number: str | None = None,
-    all: str | None = None,
-    id_list: str | None = None,
-    boolean_operator: str | None = 'AND',   # AND, OR, ANDNOT
-    start: int | None = 0,
-    max_results: int | None = 5,
-    sort_by: str | None = None,             # relevance, lastUpdatedDate, submittedDate
-    sort_order: str | None = None           # ascending, descending
+    prefixes: QueryPrefixes,
+    config: QueryConfig
 ):
     base_url = 'http://export.arxiv.org/api/query'
-    
-    # Prefix mappings for search query fields
-    prefixes = {
+
+    # Mapping of field names to arXiv API query prefixes
+    prefix_mappings = {
         'title': 'ti',
         'author': 'au',
         'abstract': 'abs',
@@ -32,31 +21,33 @@ async def fetch(
         'all': 'all'
     }
 
-    request_args = locals()
+    # Convert prefix and config models to dictionaries
+    query_prefixes = prefixes.model_dump(exclude_none=True)
+    query_config = config.model_dump(exclude_none=True)
 
-    # Construct search query with encodings
-    search_query_parts = [
-        f'{prefixes[key]}:%22{value.replace(" ", "+")}%22'  # encode quotes as %22 and space as +
-        for key, value in request_args.items()
-        if key in prefixes.keys() and value is not None     # filter for search_query args
+    # Extract fields from query_prefixes and query_config
+    id_list = query_prefixes.pop('id_list', None)           # id_list is handled separately from other prefixes
+    boolean_operator = query_config.pop('boolean_operator') # boolean_operator is only used for query construction
+
+    # Construct encoded search query
+    query_prefix_encodings = [
+        f'{prefix_mappings[key]}:%22{value.replace(" ", "+")}%22'   # encode quotes as %22 and space as +
+        for key, value in query_prefixes.items()
     ]
-    search_query = f'+{boolean_operator}+'.join(search_query_parts)
+    search_query = f'+{boolean_operator}+'.join(query_prefix_encodings)
 
     # Construct final query parameters
     query_params = {
         'search_query': search_query,
         'id_list': id_list,
-        'start': start,
-        'max_results': max_results,
-        'sortBy': sort_by,
-        'sortOrder': sort_order
+        **query_config
     }
     query_string = '&'.join(f'{key}={value}' for key, value in query_params.items() if value is not None)
 
-    # Create full URL
+    # Construct full URL for arXiv API request
     url = f'{base_url}?{query_string}'
 
-    # Make asynchronous HTTP call
+    # Make asynchronous HTTP GET request to arXiv API
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status != 200:
@@ -69,7 +60,7 @@ async def fetch(
                 )
             xml_response = await response.text()
 
-    # Convert XML response to JSON
+    # Parse XML response into JSON
     data = xmltodict.parse(xml_response)
 
     return data

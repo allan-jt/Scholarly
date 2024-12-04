@@ -1,45 +1,41 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 import asyncio
+from models.arxiv import QueryPrefixes, QueryConfig
 from services import arxiv
 
 router = APIRouter()
 
 @router.get('')
-async def query(all: str):
-    data = await query_advanced(all=all)
+async def query(
+    prefixes: QueryPrefixes = Depends(),
+    config: QueryConfig = Depends()
+):
+    # Check that 'all' prefix argument is provided
+    if not prefixes.all:
+        raise HTTPException(
+            status_code=400,
+            detail="The 'all' prefix field is required."
+        )
 
-    return data
+    arxiv_data = await arxiv.fetch(prefixes, config)    # need to filter out other prefixes
+
+    return {'arxiv': arxiv_data}
 
 @router.get('/advanced')
 async def query_advanced(
-    title: str | None = None,
-    author: str | None = None,
-    abstract: str | None = None,
-    comment: str | None = None,
-    journal_reference: str | None = None,
-    subject_category: str | None = None,
-    report_number: str | None = None,
-    all: str | None = None,
-    id_list: str | None = None,
-    boolean_operator: str | None = 'AND',
-    start: int | None = 0,
-    max_results: int | None = 5,
-    sort_by: str | None = None,
-    sort_order: str | None = None 
+    prefixes: QueryPrefixes = Depends(),
+    config: QueryConfig = Depends()
 ):
-    # Create dictionary of given arguments (filter out None)
-    query_params = {key: value for key, value in locals().items() if value is not None} # locals() gets all local variables
-
-    # Check that at least one argument is provided
-    if not query_params:
+    # Check that at least one prefix argument is provided
+    if not prefixes.model_dump(exclude_none=True):
         raise HTTPException(
             status_code=400,
-            detail='Provide at least one query parameter.'
+            detail='At least one prefix field is required.'
         )
 
     # Make concurrent calls
     # arxiv_data, elsevier_data, ieee_data = await asyncio.gather(arxiv.fetch(), elsevier.fetch(), ieee.fetch())
 
-    arxiv_data = await arxiv.fetch(**query_params)
+    arxiv_data = await arxiv.fetch(prefixes, config)    # need to filter out 'all' prefix
     
     return {'arxiv': arxiv_data}
