@@ -1,11 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import HTTPException
 import aiohttp
 import xmltodict
 
-router = APIRouter()
-
-@router.get('/')
-async def fetch_arxiv(
+async def fetch(
     title: str | None = None,
     author: str | None = None,
     abstract: str | None = None,

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 import asyncio
-from routes.arxiv import fetch_arxiv
+from services import arxiv
 
 router = APIRouter()
 
@@ -38,8 +38,8 @@ async def query_advanced(
         )
 
     # Make concurrent calls
-    # arxiv_data, elsevier_data, ieee_data = await asyncio.gather(fetch_arxiv(), fetch_elsevier(), fetch_ieee())
+    # arxiv_data, elsevier_data, ieee_data = await asyncio.gather(arxiv.fetch(), elsevier.fetch(), ieee.fetch())
 
-    arxiv_data = await fetch_arxiv(**query_params)
+    arxiv_data = await arxiv.fetch(**query_params)
     
     return {'arxiv': arxiv_data}
