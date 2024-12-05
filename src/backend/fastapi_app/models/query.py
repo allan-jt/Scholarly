@@ -28,8 +28,8 @@ class BaseQueryParams(BaseModel):
                 'boolean_operator': self.boolean_operator,
                 'start': self.start,
                 'max_results': self.max_results,
-                'sort_by': self.sort_by,
-                'sort_order': self.sort_order,
+                'sortBy': self.sort_by,
+                'sortOrder': self.sort_order,
             }
         }
 
