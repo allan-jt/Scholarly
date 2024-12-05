@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Query
+from typing import Annotated
 import asyncio
 from models.query import QueryParams, AdvancedQueryParams
 from services import arxiv
@@ -6,7 +7,7 @@ from services import arxiv
 router = APIRouter()
 
 @router.get('')
-async def query(params: QueryParams = Depends()) -> dict:
+async def query(params: Annotated[QueryParams, Query()]) -> dict:
     """
     Executes a basic query that searches keywords across all query fields
 
@@ -27,7 +28,7 @@ async def query(params: QueryParams = Depends()) -> dict:
     return {'arxiv': arxiv_data}
 
 @router.get('/advanced')
-async def query_advanced(params: AdvancedQueryParams = Depends()) -> dict:
+async def query_advanced(params: Annotated[AdvancedQueryParams, Query()]) -> dict:
     """
     Executes an advanced query that searches keywords across specific query fields
     If multiple fields are provided, they are combined using the same boolean_operator
