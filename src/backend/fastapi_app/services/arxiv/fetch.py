@@ -1,40 +1,20 @@
 from fastapi import HTTPException
 import aiohttp
 import xmltodict
-from models.arxiv import QueryPrefixes, QueryConfig
 
-async def fetch(
-    prefixes: QueryPrefixes,
-    config: QueryConfig
-):
+async def fetch(query_fields: dict, query_config: dict) -> dict:
     base_url = 'http://export.arxiv.org/api/query'
 
-    # Mapping of field names to arXiv API query prefixes
-    prefix_mappings = {
-        'title': 'ti',
-        'author': 'au',
-        'abstract': 'abs',
-        'comment': 'co',
-        'journal_reference': 'jr',
-        'subject_category': 'cat',
-        'report_number': 'rn',
-        'all': 'all'
-    }
-
-    # Convert prefix and config models to dictionaries
-    query_prefixes = prefixes.model_dump(exclude_none=True)
-    query_config = config.model_dump(exclude_none=True)
-
-    # Extract fields from query_prefixes and query_config
-    id_list = query_prefixes.pop('id_list', None)           # id_list is handled separately from other prefixes
+    # Extract keys from query_fields and query_config
+    id_list = query_fields.pop('id', None)                  # id_list is handled separately from other query fields
     boolean_operator = query_config.pop('boolean_operator') # boolean_operator is only used for query construction
 
     # Construct encoded search query
-    query_prefix_encodings = [
-        f'{prefix_mappings[key]}:%22{value.replace(" ", "+")}%22'   # encode quotes as %22 and space as +
-        for key, value in query_prefixes.items()
+    query_field_encodings = [
+        f'{key}:%22{value.replace(" ", "+")}%22'   # encode quotes as %22 and space as +
+        for key, value in query_fields.items()
     ]
-    search_query = f'+{boolean_operator}+'.join(query_prefix_encodings)
+    search_query = f'+{boolean_operator}+'.join(query_field_encodings)
 
     # Construct final query parameters
     query_params = {
