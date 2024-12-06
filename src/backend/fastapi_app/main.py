@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 # Third party imports
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import aioredis
+from pyspark.sql.types import IntegerType
 
 # Local application imports
 from routes import query
@@ -15,9 +15,11 @@ from services import *
 async def lifespan(app: FastAPI):
     # On startup
     await initialize_redis()
+    SparkSessionSingleton()
     yield
     # On shutdown
     await close_redis()
+    stop_spark_session()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -40,16 +42,20 @@ def read_root():
     return "Hello, World!"
 
 
-# @app.get("/spark")
-# async def get_spark():
-#     sparkSession = get_spark_session()
-#     sparkSession.spa
+@app.get("/spark")
+async def get_spark():
+    sparkSession = get_spark_session()
+    sparkContext = get_spark_context()
+    numbers = [1, 200, 3, 4, 5]
+
+    rdd = sparkContext.parallelize(numbers)
+    df = sparkSession.createDataFrame(rdd, IntegerType())
+    return df.sort("value").collect()
 
 
 @app.get("/hello1/{name}")
 async def say_hello(name: str):
     redis_db = get_redis_results()
-    print(redis_db)
     cache = await redis_db.get(name)
     if cache:
         return f"{name} from Redis!"

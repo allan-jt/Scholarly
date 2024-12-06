@@ -8,4 +8,6 @@ __all__ = [
     "get_redis_chunks",
     "get_spark_session",
     "get_spark_context",
+    "stop_spark_session",
+    "SparkSessionSingleton",
 ]

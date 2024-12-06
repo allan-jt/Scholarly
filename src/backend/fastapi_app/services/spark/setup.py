@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark import SparkContext
 
 
 class SparkSessionSingleton:
@@ -14,8 +15,12 @@ class SparkSessionSingleton:
             )
         return cls._instance
 
-    def get_spark_session(self):
+    def get_spark_session(self) -> SparkSession:
         return self.spark
 
-    def get_spark_context(self):
+    def get_spark_context(self) -> SparkContext:
         return self.spark.sparkContext
+
+    def close(self) -> None:
+        self.spark.stop()
+        self._instance = None

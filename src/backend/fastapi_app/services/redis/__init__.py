@@ -1,22 +1,22 @@
-from .setup import RedisSingleton
+from .setup import RedisSingleton, aioredis
 
 
-async def initialize_redis():
+async def initialize_redis() -> None:
     redisInstance = RedisSingleton()
-    return await redisInstance.initialize()
+    await redisInstance.initialize()
 
 
-async def close_redis():
+async def close_redis() -> None:
     redisInstance = RedisSingleton()
-    return await redisInstance.close()
+    await redisInstance.close()
 
 
-def get_redis_results():
+def get_redis_results() -> aioredis.Redis:
     redisInstance = RedisSingleton()
     return redisInstance.get_redis_results()
 
 
-def get_redis_chunks():
+def get_redis_chunks() -> aioredis.Redis:
     redisInstance = RedisSingleton()
     return redisInstance.get_redis_chunks()
 
