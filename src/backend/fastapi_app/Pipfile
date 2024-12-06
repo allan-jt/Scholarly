@@ -18,6 +18,9 @@ beautifulsoup4 = "*"
 langchain-community = "*"
 nest-asyncio = "*"
 transformers = "*"
+aiohttp = "*"
+xmltodict = "*"
+asyncio = "*"
 
 [dev-packages]
 

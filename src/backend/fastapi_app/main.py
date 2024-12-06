@@ -1,7 +1,13 @@
+# Standard library imports
+from contextlib import asynccontextmanager
+
+# Third party imports
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 import aioredis
+
+# Local application imports
+from routes import query
 
 
 @asynccontextmanager
@@ -26,6 +32,8 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+# Include routers
+app.include_router(query, prefix="/query")
 
 @app.get("/")
 def read_root():
