@@ -21,6 +21,7 @@ transformers = "*"
 aiohttp = "*"
 xmltodict = "*"
 asyncio = "*"
+pyspark = "*"
 
 [dev-packages]
 

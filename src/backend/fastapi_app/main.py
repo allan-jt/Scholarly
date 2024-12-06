@@ -9,6 +9,8 @@ import aioredis
 # Local application imports
 from routes import query
 
+from services import get_spark_session, get_spark_context
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -35,9 +37,16 @@ app.add_middleware(
 # Include routers
 app.include_router(query, prefix="/query")
 
+
 @app.get("/")
 def read_root():
     return "Hello, World!"
+
+
+@app.get("/spark")
+async def get_spark():
+    sparkSession = get_spark_session()
+    sparkSession.spa
 
 
 @app.get("/hello1/{name}")
