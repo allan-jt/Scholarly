@@ -4,7 +4,8 @@ import asyncio
 from langchain_core.documents import Document
 
 # Import the core module to access the initialized variables
-import src.summarization.core as core
+import core as core
+
 
 def summary(input_text: str) -> str:
     """
@@ -18,7 +19,9 @@ def summary(input_text: str) -> str:
         str: The final summary of the input text.
     """
     if core.llm is None or core.app is None or core.text_splitter is None:
-        raise ValueError("Model is not initialized. Please call `initialize_model()` first.")
+        raise ValueError(
+            "Model is not initialized. Please call `initialize_model()` first."
+        )
 
     async def process_steps():
         # Split the input text into smaller chunks

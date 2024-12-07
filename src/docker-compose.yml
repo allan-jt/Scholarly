@@ -4,10 +4,12 @@ services:
     image: react:custom
     user: root
     build: ./frontend
+    env_file:
+      - .env
     expose:
-      - 5173
+      - ${VITE_PORT}
     ports:
-      - 5173:5173
+      - ${VITE_PORT}:${VITE_PORT}
     volumes:
       - ./frontend/react_app:/app
     restart: on-failure
@@ -21,10 +23,12 @@ services:
     image: fastapi:custom
     user: root
     build: ./backend
+    env_file:
+      - .env
     expose:
-      - 8000
+      - ${BE_PORT}
     ports:
-      - 8000:8000
+      - ${BE_PORT}:${BE_PORT}
     volumes:
       - ./backend/fastapi_app:/app
     restart: on-failure
@@ -40,10 +44,12 @@ services:
     image: redis:custom
     user: root
     build: ./database
+    env_file:
+      - .env
     expose:
-      - 6379
+      - ${REDIS_PORT}
     ports:
-      - 6379:6379
+      - ${REDIS_PORT}:${REDIS_PORT}
     restart: on-failure
     networks:
       - bedb

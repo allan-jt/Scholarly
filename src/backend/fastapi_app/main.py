@@ -1,5 +1,6 @@
 # Standard library imports
 from contextlib import asynccontextmanager
+import os
 
 # Third party imports
 from fastapi import FastAPI
@@ -27,7 +28,7 @@ app = FastAPI(lifespan=lifespan)
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React's origin
+    allow_origins=[os.getenv("FE_API_URL")],  # React's origin
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers

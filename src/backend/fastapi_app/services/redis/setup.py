@@ -1,4 +1,5 @@
 import aioredis
+import os
 
 
 class RedisSingleton:
@@ -13,9 +14,9 @@ class RedisSingleton:
 
     async def initialize(self) -> None:
         if not self.results:
-            self.results = await aioredis.from_url("redis://redis:6379/0")
+            self.results = await aioredis.from_url(f'{os.environ["REDIS_URL"]}/0')
         if not self.chunks:
-            self.chunks = await aioredis.from_url("redis://redis:6379/1")
+            self.chunks = await aioredis.from_url(f'{os.environ["REDIS_URL"]}/1')
 
     async def close(self) -> None:
         if self.results:

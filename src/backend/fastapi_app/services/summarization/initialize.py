@@ -16,7 +16,8 @@ from typing import List, Literal, TypedDict, Annotated
 import operator
 
 # Import the core module to access and modify global variables
-import src.summarization.core as core
+import core as core
+
 
 def initialize_model():
     """
@@ -29,7 +30,9 @@ def initialize_model():
 
     # Set your GROQ API key securely (replace 'your_api_key_here' with your actual API key)
     # It's recommended to use environment variables or secure storage for API keys
-    os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY", "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")
+    os.environ["GROQ_API_KEY"] = os.getenv(
+        "GROQ_API_KEY", "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"
+    )
 
     # Initialize the LLM instance
     core.llm = ChatGroq(
@@ -86,7 +89,8 @@ def initialize_model():
         Maps input text chunks to the `generate_summary` function.
         """
         return [
-            Send("generate_summary", {"content": content}) for content in state["contents"]
+            Send("generate_summary", {"content": content})
+            for content in state["contents"]
         ]
 
     def collect_summaries(state: OverallState):
@@ -113,7 +117,9 @@ def initialize_model():
             "collapsed_summaries": [Document(page_content=str(res)) for res in results]
         }
 
-    def should_collapse(state: OverallState) -> Literal["collapse_summaries", "generate_final_summary"]:
+    def should_collapse(
+        state: OverallState,
+    ) -> Literal["collapse_summaries", "generate_final_summary"]:
         """
         Determines whether further collapsing of summaries is needed.
         """

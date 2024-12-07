@@ -5,13 +5,14 @@ import axios from 'axios'
 function App() {
   const [api1, setApi1] = useState("")
   const [api2, setApi2] = useState("")
+  const api = import.meta.env.VITE_BACKEND_URL
 
   useEffect(() => {
-    axios.get('http://localhost:8000/').then((res) => {
+    axios.get(api).then((res) => {
       console.log(res.data)
       setApi1(res.data)
     })
-    axios.get('http://localhost:8000/hello1/allan').then((res) => {
+    axios.get(api + "/hello1/ALlan").then((res) => {
       setApi2(res.data)
     })
   }, [])
