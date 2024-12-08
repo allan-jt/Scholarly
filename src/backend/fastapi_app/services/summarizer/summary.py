@@ -1,10 +1,8 @@
-# src/summarization/summary.py
-
 import asyncio
 from langchain_core.documents import Document
 
 # Import the core module to access the initialized variables
-import core as core
+from .core import core
 
 
 def summary(input_text: str) -> str:

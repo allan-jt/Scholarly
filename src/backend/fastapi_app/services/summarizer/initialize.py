@@ -1,5 +1,3 @@
-# src/summarization/initialize.py
-
 import os
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
@@ -16,7 +14,7 @@ from typing import List, Literal, TypedDict, Annotated
 import operator
 
 # Import the core module to access and modify global variables
-import core as core
+from .core import core
 
 
 def initialize_model():
@@ -30,9 +28,7 @@ def initialize_model():
 
     # Set your GROQ API key securely (replace 'your_api_key_here' with your actual API key)
     # It's recommended to use environment variables or secure storage for API keys
-    os.environ["GROQ_API_KEY"] = os.getenv(
-        "GROQ_API_KEY", "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"
-    )
+    os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 
     # Initialize the LLM instance
     core.llm = ChatGroq(
@@ -45,7 +41,12 @@ def initialize_model():
 
     # Define prompt templates and chains for summarization
     map_prompt = ChatPromptTemplate.from_messages(
-        [("system", "Write a concise summary of the following:\n\n{context}")]
+        [
+            (
+                "system",
+                "Write a concise summary of the following and only include the summary:\n\n{context}",
+            )
+        ]
     )
     map_chain = map_prompt | core.llm | StrOutputParser()
 
@@ -53,6 +54,7 @@ def initialize_model():
     The following is a set of summaries:
     {docs}
     Take these and distill it into a final, consolidated summary of the main themes.
+    Only include the final summary.
     """
     reduce_prompt = ChatPromptTemplate.from_messages([("human", reduce_template)])
     reduce_chain = reduce_prompt | core.llm | StrOutputParser()
