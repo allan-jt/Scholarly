@@ -22,4 +22,4 @@ pipenv install
 
 echo 5. Running server
 
-pipenv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+pipenv run uvicorn main:app --host ${BE_BINDING_HOST} --port ${BE_PORT} --reload
