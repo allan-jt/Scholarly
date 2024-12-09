@@ -3,9 +3,7 @@ from .summary import summary
 from services.spark import *
 from services.redis import *
 from pyspark.rdd import RDD
-
-# from pyspark.sql.functions import udf
-# from pyspark.sql.types import StringType
+from .core import Core
 
 
 class SummarizerSingleton:
@@ -17,8 +15,8 @@ class SummarizerSingleton:
         return cls._instance
 
     def summarize_chunks_in_partition(self, partition):
-        initialize_model()
-        return [summary(chunk) for chunk in partition]
+        core = initialize_model(Core())
+        return [summary(chunk, core) for chunk in partition]
 
     def summarize(self, chunks: RDD) -> RDD:
         return chunks.mapPartitions(self.summarize_chunks_in_partition)

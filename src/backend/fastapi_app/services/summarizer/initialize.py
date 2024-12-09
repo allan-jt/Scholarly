@@ -14,10 +14,10 @@ from typing import List, Literal, TypedDict, Annotated
 import operator
 
 # Import the core module to access and modify global variables
-from .core import core
+from .core import Core
 
 
-def initialize_model():
+def initialize_model(core: Core):
     """
     Initializes the LLM model, prompt chains, and the state graph.
     This function should be called only once during the application lifecycle.
@@ -44,7 +44,7 @@ def initialize_model():
         [
             (
                 "system",
-                "Write a concise summary of the following and only include the summary:\n\n{context}",
+                "Write a detailed summary of the following and only return the summary:\n\n{context}",
             )
         ]
     )
@@ -153,3 +153,5 @@ def initialize_model():
 
     core.app = graph.compile()
     print("Model and state graph initialized!")
+
+    return core

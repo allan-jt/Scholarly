@@ -2,10 +2,10 @@ import asyncio
 from langchain_core.documents import Document
 
 # Import the core module to access the initialized variables
-from .core import core
+from .core import Core
 
 
-def summary(input_text: str) -> str:
+def summary(input_text: str, core: Core) -> str:
     """
     Summarizes the given input text by splitting it into chunks,
     processing it through the state graph, and returning the final summary.
