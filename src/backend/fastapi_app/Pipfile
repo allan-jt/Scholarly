@@ -22,6 +22,9 @@ aiohttp = "*"
 xmltodict = "*"
 asyncio = "*"
 pyspark = "*"
+pymupdf4llm = "*"
+unstructured = "*"
+markdown = "*"
 
 [dev-packages]
 
