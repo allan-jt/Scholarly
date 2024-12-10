@@ -1,6 +1,5 @@
 import pymupdf4llm
 from unstructured.partition.md import partition_md
-from unstructured.documents.elements import Element
 import json
 import sys
 from typing import List, Dict
