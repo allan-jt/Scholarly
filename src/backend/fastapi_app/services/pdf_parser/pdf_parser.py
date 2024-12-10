@@ -12,10 +12,11 @@ def pdf_parser():
     filename = sys.argv[1]
     
     pdf_path = f"./tmp_data/{filename}"
-    json = pdf_to_json_pipeline(pdf_path, save_json=True) # save_json set true for testing purpose
-    # print(json)
+    result_json = pdf_to_json_pipeline(pdf_path, save_json=True) # save_json set true for testing purpose
+    for r in result_json:
+        print(r.get("header"))
 
-def pdf_to_json_pipeline(pdf_path: str, save_json=False):
+def pdf_to_json_pipeline(pdf_path: str, save_json=False) -> Dict:
     """
     Converts a PDF to JSON via markdown conversion and section extraction.
     
@@ -23,7 +24,7 @@ def pdf_to_json_pipeline(pdf_path: str, save_json=False):
         pdf_path (str): Path to the input PDF file.
         save_json (bool, optional): Whether to save the output JSON to a file. Defaults to False.
     Returns:
-        str: JSON representation of the parsed content.
+        dict: JSON representation of the parsed content.
     """
     md_text = pdf_to_md(pdf_path, True) # save_md set true for testing purpose
     dict_text = md_to_dict(md_text)
@@ -31,7 +32,7 @@ def pdf_to_json_pipeline(pdf_path: str, save_json=False):
     if save_json:
         with open(pdf_path.replace(".pdf", ".json"), 'w') as f:   
             f.write(json_text)
-    return json_text
+    return dict_text
 
 def pdf_to_md(pdf_path: str, save_md=False) -> str:
     """
