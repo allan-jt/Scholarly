@@ -60,7 +60,10 @@ export default function SearchResult() {
                         left: "30%",
                         borderRadius: "10px",
                         textAlign: "center",
-                        backgroundColor: "secondary.light",
+                        backgroundColor: (theme) =>
+                            theme.palette.mode === "light"
+                                ? "#FAFAFE"
+                                : "#202031",
                     }}
                 >
                     <ReportGmailerrorredIcon
@@ -108,16 +111,18 @@ export default function SearchResult() {
                         theme.palette.mode === "light" ? "#FAFAFE" : "#202031",
                 }}
             >
-                <Typography
-                    color="secondary"
-                    variant="body1"
-                    fontWeight={500}
-                    textAlign="center"
-                    lineHeight="70vh"
-                    gutterBottom
-                >
-                    Select an article to view the summary.
-                </Typography>
+                {!loading && (
+                    <Typography
+                        color="secondary"
+                        variant="body1"
+                        fontWeight={500}
+                        textAlign="center"
+                        lineHeight="70vh"
+                        gutterBottom
+                    >
+                        Select an article to view the summary.
+                    </Typography>
+                )}
             </Box>
             <Paper
                 component="section"
