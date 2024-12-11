@@ -15,22 +15,27 @@ import { MaterialUISwitch } from "./MaterialUISwitch";
 
 const pages = ["About", "Search"];
 const links = ["/", "/"];
-function ResponsiveAppBar() {
+
+interface ResponsiveAppBarProps {
+    toggleTheme: () => void;
+    darkMode: boolean;
+}
+
+function ResponsiveAppBar({ toggleTheme, darkMode }: ResponsiveAppBarProps) {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
         null
     );
+
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);
     };
+
     const handleCloseNavMenu = () => {
         setAnchorElNav(null);
     };
+
     return (
-        <AppBar
-            position="static"
-            color="inherit"
-            // style={{ backgroundColor: "background.default" }}
-        >
+        <AppBar position="static" color="inherit">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <SchoolIcon
@@ -124,7 +129,12 @@ function ResponsiveAppBar() {
                         <FormControlLabel
                             label=""
                             sx={{ m: 0 }}
-                            control={<MaterialUISwitch />}
+                            control={
+                                <MaterialUISwitch
+                                    checked={darkMode}
+                                    onChange={toggleTheme}
+                                />
+                            }
                         />
                     </Box>
                 </Toolbar>
@@ -132,4 +142,5 @@ function ResponsiveAppBar() {
         </AppBar>
     );
 }
+
 export default ResponsiveAppBar;

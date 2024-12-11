@@ -104,11 +104,19 @@ export default function SearchResult() {
                     left: { xs: "12%", sm: "12%", md: "55%", lg: "55%" },
                     zIndex: { sm: 100, md: -100 },
                     borderRadius: "10px",
-                    backgroundColor: "secondary.light",
+                    backgroundColor: (theme) =>
+                        theme.palette.mode === "light" ? "#FAFAFE" : "#202031",
                 }}
             >
-                <Typography color="secondary" variant="h6" gutterBottom>
-                    Select an article to view the summary
+                <Typography
+                    color="secondary"
+                    variant="body1"
+                    fontWeight={500}
+                    textAlign="center"
+                    lineHeight="70vh"
+                    gutterBottom
+                >
+                    Select an article to view the summary.
                 </Typography>
             </Box>
             <Paper
