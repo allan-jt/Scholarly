@@ -1,28 +1,88 @@
-import { useEffect, useState } from 'react'
-import './App.css'
-import axios from 'axios'
+import "./App.css";
+import Search from "./search/Search";
+import SearchResult from "./search/SearchResult";
+import ResponsiveAppBar from "./menu/ResponsiveAppBar";
+import { ThemeProvider, createTheme } from "@mui/material";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import CssBaseline from "@mui/material/CssBaseline";
 
 function App() {
-  const [api1, setApi1] = useState("")
-  const [api2, setApi2] = useState("")
-  const api = import.meta.env.VITE_BACKEND_URL
+    const theme = createTheme({
+        typography: {
+            fontFamily: '"Lexend", sans-serif',
+            fontWeightBold: 700,
+            fontWeightRegular: 300,
+        },
+        palette: {
+            background: {
+                default: "#ffffff",
+            },
+            text: {
+                primary: "#05171c",
+            },
+            primary: {
+                // light: "#36beff",
+                main: "#36beff",
+                dark: "#239ad1",
+                contrastText: "#05171c",
+            },
+            secondary: {
+                light: "#FAFAFE",
+                main: "#8a8bec",
+                dark: "#3a3b9e",
+                contrastText: "#05171c",
+            },
+        },
+    });
 
-  useEffect(() => {
-    axios.get(api).then((res) => {
-      console.log(res.data)
-      setApi1(res.data)
-    })
-    axios.get(api + "/hello1/ALlan").then((res) => {
-      setApi2(res.data)
-    })
-  }, [])
+    const darktheme = createTheme({
+        typography: {
+            fontFamily: '"Lexend", sans-serif',
+            fontWeightBold: 700,
+            fontWeightRegular: 300,
+        },
+        palette: {
+            mode: "dark",
+            background: {
+                default: "#05171c",
+            },
+            text: {
+                primary: "#ffffff",
+            },
+            primary: {
+                light: "#ffffff",
+                main: "#36beff",
+                dark: "#239ad1",
+                contrastText: "#05171c",
+            },
+            secondary: {
+                light: "#FAFAFE",
+                main: "#8a8bec",
+                dark: "#3a3b9e",
+                contrastText: "#05171c",
+            },
+            // error: {
+            //     main: "#ff4870",
+            //     dark: "#650d73",
+            //     contrastText: "#05171c",
+            // },
+        },
+    });
 
-  return (
-    <>
-      <h1>{api1}</h1>
-      <h1>{api2}</h1>
-    </>
-  )
+    return (
+        <BrowserRouter>
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <ResponsiveAppBar />
+                <Routes>
+                    <Route path="/" element={<Search />} />
+                    <Route path="/search" element={<Search />} />
+                    <Route path="/search_result" element={<SearchResult />} />
+                    {/* <Route path="/about" element={<Search />} /> */}
+                </Routes>
+            </ThemeProvider>
+        </BrowserRouter>
+    );
 }
 
-export default App
+export default App;
