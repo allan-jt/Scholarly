@@ -96,7 +96,10 @@ function ResponsiveAppBar({ toggleTheme, darkMode }: ResponsiveAppBarProps) {
                                 >
                                     <Typography
                                         color="primary"
-                                        sx={{ textAlign: "center" }}
+                                        sx={{
+                                            textAlign: "center",
+                                            textDecoration: "none",
+                                        }}
                                         component="a"
                                         href={links[index]}
                                     >
