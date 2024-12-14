@@ -1,0 +1,160 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap");
+
+html,
+body,
+:root {
+    font-family: "Lexend", sans-serif;
+    font-optical-sizing: auto;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.nav-menu #text {
+    color: "black";
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+
+    width: 100vw;
+    background: #36beff;
+    min-height: 60px;
+}
+
+footer .wave {
+    position: absolute;
+    top: -60px;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: url(assets/wave.png);
+    background-size: 1000px 60px;
+    opacity: 0.5;
+}
+
+footer .wave#wave1 {
+    z-index: 1000;
+    opacity: 1;
+    bottom: 0;
+    animation: animateWave 5s linear infinite;
+}
+footer .wave#wave2 {
+    z-index: 999;
+    opacity: 0.3;
+    bottom: 10px;
+    animation: animateWave_02 6s linear infinite;
+}
+footer .wave#wave3 {
+    z-index: 1000;
+    opacity: 0.2;
+    bottom: 15px;
+    animation: animateWave 7s linear infinite;
+}
+footer .wave#wave4 {
+    z-index: 999;
+    opacity: 0.5;
+    bottom: 20px;
+    animation: animateWave_02 7.5s linear infinite;
+}
+@keyframes animateWave {
+    0% {
+        background-position-x: 1000px;
+    }
+    100% {
+        background-position-x: 0px;
+    }
+}
+
+@keyframes animateWave_02 {
+    0% {
+        background-position-x: 0px;
+    }
+    100% {
+        background-position-x: 1000px;
+    }
+}
+
+footer .social-icons {
+    padding: 0;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+footer .social-icons li {
+    list-style: none;
+}
+
+footer .social-icons li a svg {
+    color: white;
+    transition: 0.5s;
+}
+
+footer .social-icons li a svg:hover {
+    transform: translateY(-10px);
+}
+
+.advSearch {
+    margin: 20px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    width: 600px;
+    animation: fadeIn 0.5s linear;
+}
+
+.advSearch .row {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.advSearch .search-button {
+    align-self: end;
+    margin-top: 20px;
+    color: white;
+    border-radius: 25px;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.fadeInAdvSearch.none {
+    display: none;
+}
+
+.plus-icon {
+    cursor: pointer;
+}
+
+.plus-icon.open {
+    transform: rotate(45deg);
+    transition: transform 0.2s ease-in-out;
+}
+
+.gradient-text {
+    background: linear-gradient(to right, #36beff, #8480ff, #e58ef2);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.search-result-abstract {
+    display: -webkit-box;
+    line-clamp: 4;
+    -webkit-line-clamp: 4; /* Number of lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

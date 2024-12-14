@@ -1,28 +1,96 @@
-import { useEffect, useState } from 'react'
-import './App.css'
-import axios from 'axios'
+import { useState, useEffect } from "react";
+import "./App.css";
+import Search from "./search/Search";
+import SearchResult from "./search/SearchResult";
+import ResponsiveAppBar from "./menu/ResponsiveAppBar";
+import { ThemeProvider, createTheme } from "@mui/material";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import CssBaseline from "@mui/material/CssBaseline";
 
 function App() {
-  const [api1, setApi1] = useState("")
-  const [api2, setApi2] = useState("")
-  const api = import.meta.env.VITE_BACKEND_URL
+    const [darkMode, setDarkMode] = useState(() => {
+        const savedTheme = localStorage.getItem("theme");
+        return savedTheme === "dark";
+    });
 
-  useEffect(() => {
-    axios.get(api).then((res) => {
-      console.log(res.data)
-      setApi1(res.data)
-    })
-    axios.get(api + "/hello1/ALlan").then((res) => {
-      setApi2(res.data)
-    })
-  }, [])
+    const toggleTheme = () => {
+        setDarkMode((prev) => {
+            const newMode = !prev;
+            localStorage.setItem("theme", newMode ? "dark" : "light");
+            return newMode;
+        });
+    };
 
-  return (
-    <>
-      <h1>{api1}</h1>
-      <h1>{api2}</h1>
-    </>
-  )
+    const theme = createTheme({
+        typography: {
+            fontFamily: '"Lexend", sans-serif',
+            fontWeightBold: 700,
+            fontWeightRegular: 300,
+        },
+        palette: {
+            mode: darkMode ? "dark" : "light",
+            ...(darkMode
+                ? {
+                      text: {
+                          primary: "#ffffff",
+                      },
+                      primary: {
+                          light: "#ffffff",
+                          main: "#36beff",
+                          dark: "#239ad1",
+                          contrastText: "#05171c",
+                      },
+                      secondary: {
+                          light: "#FAFAFE",
+                          main: "#8a8bec",
+                          dark: "#3a3b9e",
+                          contrastText: "#05171c",
+                      },
+                  }
+                : {
+                      background: {
+                          default: "#ffffff",
+                      },
+                      text: {
+                          primary: "#05171c",
+                      },
+                      primary: {
+                          main: "#36beff",
+                          dark: "#239ad1",
+                          contrastText: "#05171c",
+                      },
+                      secondary: {
+                          main: "#8a8bec",
+                          dark: "#3a3b9e",
+                          contrastText: "#05171c",
+                      },
+                  }),
+        },
+    });
+
+    useEffect(() => {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+            setDarkMode(savedTheme === "dark");
+        }
+    }, []);
+
+    return (
+        <BrowserRouter>
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <ResponsiveAppBar
+                    toggleTheme={toggleTheme}
+                    darkMode={darkMode}
+                />
+                <Routes>
+                    <Route path="/" element={<Search />} />
+                    <Route path="/search" element={<Search />} />
+                    <Route path="/search_result" element={<SearchResult />} />
+                </Routes>
+            </ThemeProvider>
+        </BrowserRouter>
+    );
 }
 
-export default App
+export default App;
