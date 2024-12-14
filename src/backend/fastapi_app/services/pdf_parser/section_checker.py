@@ -1,8 +1,8 @@
 import re
 from typing import Optional
 
-NUMERAL_HEADER_REGEX = r"^\d+[\.\s]+[A-Za-z0-9\s?]+" # Starts with a number followed by alphanum or ./?/space/
-ROMAN_NUM_HEADER_REGEX = r"^(X{0,2}(IX|IV|V?I{0,3}))\b[\s.]+[A-Za-z0-9]" # Roman numerals up to 20
+NUMERAL_HEADER_REGEX = r"^\d+(\.| )?([A-Z][a-z]+)" # Starts with a number (int not float) e.g. 1. <Title>, 1 <Title>, 1<Title>...
+ROMAN_NUM_HEADER_REGEX = r"^(X{0,2}(IX|IV|V?I{0,3}))\b[\s.]+[A-Za-z0-9]+" # Roman numerals up to 20
 HEADER_REGEX = re.compile(f"{NUMERAL_HEADER_REGEX}|{ROMAN_NUM_HEADER_REGEX}")
 
 def is_valid_header(new_header: str, prev_header: str) -> bool:

@@ -74,8 +74,9 @@ def md_to_dict(md_text: str, include_ref=False) -> List[Dict[str, str]]:
             # terminate when the header name starts with reference
             if element_str.upper().startswith("REFERENCE") and not include_ref:
                 break
+            valid_header = is_valid_header(element_str, current_title)
             # check if the current title is a valid section header
-            if is_valid_header(element_str, current_title): 
+            if valid_header: 
                 if current_title:
                     section_list.append({
                         "header": current_title,
@@ -83,8 +84,12 @@ def md_to_dict(md_text: str, include_ref=False) -> List[Dict[str, str]]:
                     })
                 current_title = element_str
                 current_text = []
+            elif not valid_header and current_title: 
+                current_text.append(element_str)
+                current_text.append('\n') # added for separating subsection/subsubsection name and paragraph
         # check for narrative text (paragraphs/sentences) 
-        elif element.category in ["NarrativeText"] and current_title:
+        # https://docs.unstructured.io/open-source/concepts/document-elements
+        elif element.category in ["NarrativeText", "UncategorizedText", "ListItem"] and current_title:
             current_text.append(element_str)
     if current_title:
         section_list.append({
