@@ -31,7 +31,7 @@ async def query(params: Annotated[QueryParams, Query()]) -> dict:
         for link in entry['link']
         if link.get('@type') == 'application/pdf'
     ]
-    # print(pdfs)
+    print(pdfs)
     request_id = str(uuid.uuid4())
     await pdf.store_in_redis(request_id, pdfs)
 

@@ -14,6 +14,7 @@ import uuid
 # Local application imports
 from routes import query
 from services import *
+from services.pdf import store_in_redis
 
 
 @asynccontextmanager
@@ -102,13 +103,32 @@ async def get_pdf_from_redis(req_id) -> any:
 
 @app.get("/chunk")
 async def get_chunks():
-    # For fetching
-    request_id = str(uuid.uuid4())
-    response = requests.get("https://arxiv.org/pdf/1906.04393")
-    await store_pdf_to_redis(request_id, response.content)
+    # # For fetching
+    # request_id = str(uuid.uuid4())
+    # response = requests.get("https://arxiv.org/pdf/1906.04393")
+    # await store_pdf_to_redis(request_id, response.content)
 
-    # For chunking
+    # # For chunking
+    # pdfs = await get_pdf_from_redis(request_id)
+    # for pdf in pdfs:
+    #     pdf_stream = BytesIO(response.content)
+    #     return StreamingResponse(pdf_stream, media_type="application/pdf")
+
+    # Testing
+    request_id = str(uuid.uuid4())
+    # pdf_links = [
+    #     'http://arxiv.org/pdf/cond-mat/0102536v1',
+    #     'http://arxiv.org/pdf/astro-ph/0608371v1',
+    #     'http://arxiv.org/pdf/1802.06593v1'
+    # ]
+    pdf_links = [
+        'http://arxiv.org/pdf/cond-mat/0102536v1',
+        'http://arxiv.org/pdf/FAKE_URL',    # should raise exception
+        'http://arxiv.org/pdf/1802.06593v1',
+    ]
+    await store_in_redis(request_id, pdf_links)
+
     pdfs = await get_pdf_from_redis(request_id)
-    for pdf in pdfs:
-        pdf_stream = BytesIO(response.content)
-        return StreamingResponse(pdf_stream, media_type="application/pdf")
+    # pdf_stream = BytesIO(pdfs[0])   # 'http://arxiv.org/pdf/cond-mat/0102536v1'
+    pdf_stream = BytesIO(pdfs[1])   # 'http://arxiv.org/pdf/astro-ph/0608371v1'
+    return StreamingResponse(pdf_stream, media_type="application/pdf")

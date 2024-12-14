@@ -1,11 +1,20 @@
 import asyncio
 import aiohttp
+from fastapi import HTTPException
 from services.redis import get_redis_pdfs
 
 
 async def fetch(session: aiohttp.ClientSession, pdf_link: str) -> bytes:
     async with session.get(pdf_link) as response:
         # print(response)
+        if response.status != 200:
+            raise HTTPException(
+                status_code=response.status,
+                detail={
+                    "error": "Failed to fetch PDF from arXiv site.",
+                    "instance": pdf_link
+                }
+            )
         return await response.read()    # read and return binary content
 
 
