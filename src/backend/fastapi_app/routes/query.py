@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Query
 from typing import Annotated
-import asyncio
+import asyncio, uuid
 from models.query import QueryParams, AdvancedQueryParams
-from services import arxiv
+from services import arxiv, pdf
 
 router = APIRouter()
 
@@ -24,6 +24,16 @@ async def query(params: Annotated[QueryParams, Query()]) -> dict:
     """
     arxiv_params = params.to_arxiv()
     arxiv_data = await arxiv.fetch(**arxiv_params)
+
+    pdfs = [
+        link['@href']
+        for entry in arxiv_data['feed']['entry']
+        for link in entry['link']
+        if link.get('@type') == 'application/pdf'
+    ]
+    # print(pdfs)
+    request_id = str(uuid.uuid4())
+    await pdf.store_in_redis(request_id, pdfs)
 
     return {'arxiv': arxiv_data}
 
