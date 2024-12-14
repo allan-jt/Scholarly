@@ -4,35 +4,42 @@ import json
 import sys
 from typing import List, Dict
 from section_checker import is_valid_header
+from pprint import pprint
 
-def pdf_parser():    
+
+def pdf_parser():
     if len(sys.argv) < 2:
         print("Pdf file name required e.g. <arXiv_id>.pdf")
         return
     filename = sys.argv[1]
-    
+
     pdf_path = f"./tmp_data/{filename}"
-    result_json = pdf_to_json_pipeline(pdf_path, save_json=True) # save_json set true for testing purpose
-    for r in result_json:
-        print(r.get("header"))
+    result_json = pdf_to_json_pipeline(
+        pdf_path
+    )  # save_json set true for testing purpose
+    # for r in result_json:
+    #     print(r.get("header"))
+    pprint(result_json)
+
 
 def pdf_to_json_pipeline(pdf_path: str, save_json=False) -> Dict:
     """
     Converts a PDF to JSON via markdown conversion and section extraction.
-    
+
     Args:
         pdf_path (str): Path to the input PDF file.
         save_json (bool, optional): Whether to save the output JSON to a file. Defaults to False.
     Returns:
         dict: JSON representation of the parsed content.
     """
-    md_text = pdf_to_md(pdf_path, True) # save_md set true for testing purpose
+    md_text = pdf_to_md(pdf_path)  # save_md set true for testing purpose
     dict_text = md_to_dict(md_text)
     json_text = json.dumps(dict_text)
     if save_json:
-        with open(pdf_path.replace(".pdf", ".json"), 'w') as f:   
+        with open(pdf_path.replace(".pdf", ".json"), "w") as f:
             f.write(json_text)
     return dict_text
+
 
 def pdf_to_md(pdf_path: str, save_md=False) -> str:
     """
@@ -51,6 +58,7 @@ def pdf_to_md(pdf_path: str, save_md=False) -> str:
         with open(md_output_path, "w") as f:
             f.write(md_text)
     return md_text
+
 
 def md_to_dict(md_text: str, include_ref=False) -> List[Dict[str, str]]:
     """
@@ -75,23 +83,20 @@ def md_to_dict(md_text: str, include_ref=False) -> List[Dict[str, str]]:
             if element_str.upper().startswith("REFERENCE") and not include_ref:
                 break
             # check if the current title is a valid section header
-            if is_valid_header(element_str, current_title): 
+            if is_valid_header(element_str, current_title):
                 if current_title:
-                    section_list.append({
-                        "header": current_title,
-                        "text": ' '.join(current_text)
-                    })
+                    section_list.append(
+                        {"header": current_title, "text": " ".join(current_text)}
+                    )
                 current_title = element_str
                 current_text = []
-        # check for narrative text (paragraphs/sentences) 
+        # check for narrative text (paragraphs/sentences)
         elif element.category in ["NarrativeText"] and current_title:
             current_text.append(element_str)
     if current_title:
-        section_list.append({
-            "header": current_title,
-            "text": ' '.join(current_text)
-        })
+        section_list.append({"header": current_title, "text": " ".join(current_text)})
     return section_list
+
 
 if __name__ == "__main__":
     pdf_parser()

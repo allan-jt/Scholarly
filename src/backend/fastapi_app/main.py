@@ -6,6 +6,10 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pyspark.sql.types import IntegerType
+import requests
+from io import BytesIO
+from fastapi.responses import StreamingResponse
+import uuid
 
 # Local application imports
 from routes import query
@@ -84,3 +88,27 @@ async def say_hello(name: str):
     # key | value | expiration in seconds
     await redis_db.set(name, "Hello World!", ex=30)
     return f"Hello {name}!"
+
+
+async def store_pdf_to_redis(req_id, pdf: any) -> None:
+    redis_db = get_redis_pdfs()
+    await redis_db.rpush(req_id, pdf)
+
+
+async def get_pdf_from_redis(req_id) -> any:
+    redis_db = get_redis_pdfs()
+    return await redis_db.lrange(req_id, 0, -1)  # Use lrange to get a list of PDFs
+
+
+@app.get("/chunk")
+async def get_chunks():
+    # For fetching
+    request_id = str(uuid.uuid4())
+    response = requests.get("https://arxiv.org/pdf/1906.04393")
+    await store_pdf_to_redis(request_id, response.content)
+
+    # For chunking
+    pdfs = await get_pdf_from_redis(request_id)
+    for pdf in pdfs:
+        pdf_stream = BytesIO(response.content)
+        return StreamingResponse(pdf_stream, media_type="application/pdf")
