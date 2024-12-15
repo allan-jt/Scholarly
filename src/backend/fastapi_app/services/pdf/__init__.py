@@ -1,0 +1,1 @@
+from .store import store_in_redis
