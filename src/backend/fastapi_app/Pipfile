@@ -25,6 +25,7 @@ pyspark = "*"
 pymupdf4llm = "*"
 unstructured = "*"
 markdown = "*"
+pymupdf = "*"
 
 [dev-packages]
 

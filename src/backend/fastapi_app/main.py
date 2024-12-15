@@ -107,8 +107,10 @@ async def get_chunks():
     response = requests.get("https://arxiv.org/pdf/1906.04393")
     await store_pdf_to_redis(request_id, response.content)
 
-    # For chunking
-    pdfs = await get_pdf_from_redis(request_id)
-    for pdf in pdfs:
-        pdf_stream = BytesIO(response.content)
-        return StreamingResponse(pdf_stream, media_type="application/pdf")
+    # # For chunking
+    # pdfs = await get_pdf_from_redis(request_id)
+    # for pdf in pdfs:
+    #     pdf_stream = BytesIO(response.content)
+    #     return StreamingResponse(pdf_stream, media_type="application/pdf")
+    ch = ChunkerSingleton()
+    return await ch.chunker(request_id)

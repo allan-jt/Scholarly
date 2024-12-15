@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "02840aee1da534b9efd4c533418a3665e173a176ecdb3f776c802a991007d918"
+            "sha256": "bf8b2df0dbdbda95a1dedf5ca88f91e8c834724a93e46afc6f2453c7324dad91"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -1862,17 +1862,18 @@
         },
         "pymupdf": {
             "hashes": [
-                "sha256:148800b9b14f2f48b5fc8f9213aeb94e272f1af4b533deeabe0e561d3bd334bf",
-                "sha256:227ea293734b92fc1f49a01ffebe0f3d212bc0ec3be7e2db172088b8eaff5a4a",
-                "sha256:2e0eea2fcd7cbf84c8a18ec6744d9f92b81552df2974e40498baf41ec0dc557b",
-                "sha256:62b8673a2348c1b63874d2b1e93ee29e66892e7ca8311df9c7f4a9aa1d89caed",
-                "sha256:9e5a33816e4b85ed6a01545cada2b866fc280a3b6478bb8e19c364532adf6692",
-                "sha256:cada9ebc14ae99253639e9d752f2e1cb8a62af813626c4391c62d39c41f8a43a",
-                "sha256:d12a4a7d4456b2c09afb674428be2021b87a3c4afbae7f717d5d7e805a30a989",
-                "sha256:e9d9e15af0fe389e15d605574f953df304d6037ce7cb4dca8b7cdec34d0694a3"
+                "sha256:15e6f4013ad0a029a2221920f9d2081f56dc43259dabfdf5cad7fbf1cee4b5a7",
+                "sha256:6725bec0f37c2380d926f792c262693c926af7cc1aa5aa2b8207e771867f015a",
+                "sha256:793f9f6d51029e97851c711b3f6d9fe912313d95a306fbe8b1866f301d0e2bd3",
+                "sha256:a39afbd80381f43e30d6eb2ec4613f465f507ac2b76070abdd2da8724f32ef36",
+                "sha256:a687bd387589e30abd810a78a23341f57f43fa16a4d8d8c0b870bb6d89607343",
+                "sha256:b63f8e9e65b0bda48f9217efd4d2a8c6d7a739dd28baf460c1ae78439b9af489",
+                "sha256:e2b0b73c0aab0f863e5132c93cfa4607e8129feb1afa3d544b2cf7f172c50b5a",
+                "sha256:fc7dbc1aa9e298a4c81084e389c9623c26fcaa232c71efaa073af150069e2221"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.9'",
-            "version": "==1.25.0"
+            "version": "==1.25.1"
         },
         "pymupdf4llm": {
             "hashes": [

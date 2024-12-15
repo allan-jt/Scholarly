@@ -3,7 +3,7 @@ from unstructured.partition.md import partition_md
 import json
 import sys
 from typing import List, Dict
-from section_checker import is_valid_header
+from .section_checker import is_valid_header
 from pprint import pprint
 
 
@@ -34,8 +34,8 @@ def pdf_to_json_pipeline(pdf_path: str, save_json=False) -> Dict:
     """
     md_text = pdf_to_md(pdf_path)  # save_md set true for testing purpose
     dict_text = md_to_dict(md_text)
-    json_text = json.dumps(dict_text)
     if save_json:
+        json_text = json.dumps(dict_text)
         with open(pdf_path.replace(".pdf", ".json"), "w") as f:
             f.write(json_text)
     return dict_text

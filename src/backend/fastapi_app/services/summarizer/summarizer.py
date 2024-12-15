@@ -12,6 +12,7 @@ class SummarizerSingleton:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(SummarizerSingleton, cls).__new__(cls)
+            # get_spark_context().addPyFile("/app/services/summarizer/my_files.zip")
         return cls._instance
 
     def summarize_chunks_in_partition(self, partition):

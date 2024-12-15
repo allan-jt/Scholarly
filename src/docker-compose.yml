@@ -38,7 +38,7 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    
+
   database:
     container_name: redis
     image: redis:custom

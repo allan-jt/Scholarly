@@ -1,6 +1,7 @@
 from .spark import *
 from .redis import *
 from .summarizer import *
+from .chunker import *
 
 __all__ = [
     "initialize_redis",
@@ -13,4 +14,5 @@ __all__ = [
     "stop_spark_session",
     "SparkSessionSingleton",
     "SummarizerSingleton",
+    "ChunkerSingleton",
 ]
