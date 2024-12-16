@@ -1,5 +1,6 @@
 import os
 from langchain_openai import ChatOpenAI
+
 # from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -13,10 +14,46 @@ from langgraph.constants import START, END, Send
 from langgraph.graph import StateGraph
 from typing import List, Literal, TypedDict, Annotated
 import operator
-import yaml
+
+# import yaml
 
 # Import the core module to access and modify global variables
 from .core import Core
+
+
+config = {
+    "llm": {
+        "model_name": "gpt-4o-mini",
+        "temperature": 0,
+        "max_token": 500,  # Max number of tokens to generate for each input text
+        "max_retries": 2,
+    },
+    "langraph": {
+        "chunk_size": 5000,  # Chunk the input tokens into smaller subdocs if exceeded this number
+        "chunk_overlap": 0,
+        "summary_token_max": 1000,  # Recursive summarization if summary exceeds this number
+        "recursion_limit": 10,  # Max recursion of above step
+    },
+    "prompt": {
+        "map_prompt": (
+            "You are an assistant highly skilled at summarizing segments of academic research papers. "
+            "I will provide you with one section of the paper at a time. You will not receive the entire paper at once. "
+            "Based solely on the segment you are given, please produce a concise and accurate summary of its key points.\n"
+            "Your summary should:\n"
+            "1. Capture the primary focus of the given section.\n"
+            "2. Highlight the key words.\n"
+            "3. Clearly describe methodologies and their counterparts if there were any, highlight these and their outcomes.\n"
+            "4. Include important quantitative or qualitative data if it appears in the text.\n"
+            "5. Exclude any references or citation lists. If the section includes what appears to be a reference section or citation details, ignore them.\n"
+            "6. Keep the summaries brief and easy to read in a minute.\n"
+            "Summarize the following text:\\n\\n{context}. Output the summary only."
+        ),
+        "reduce_prompt": (
+            "The following is several chunk-level summaries created in isolation from a specific section in a research paper:\n"
+            "{docs}. Take these and distill it into a final, consolidated summary of the main themes."
+        ),
+    },
+}
 
 
 def initialize_model(core: Core):
@@ -31,17 +68,17 @@ def initialize_model(core: Core):
     # Set your GROQ API key securely (replace 'your_api_key_here' with your actual API key)
     # It's recommended to use environment variables or secure storage for API keys
 
-    with open("./services/summarizer/config.yaml",'r') as f:
-        config=yaml.safe_load(f)
-    model_name=config["llm"]["model_name"]
-    temperature=config["llm"]["temperature"]
-    max_retries=config["llm"]["max_retries"]
-    max_token=config["llm"]["max_token"]
-    chunk_size=config["langraph"]["chunk_size"]
-    chunk_overlap=config["langraph"]["chunk_overlap"]
-    summary_token_max=config["langraph"]["summary_token_max"]
-    map_prompt_str=config["prompt"]["map_prompt"]
-    reduce_prompt_str=config["prompt"]["reduce_prompt"]
+    # with open("./services/summarizer/config.yaml", "r") as f:
+    #     config = yaml.safe_load(f)
+    model_name = config["llm"]["model_name"]
+    temperature = config["llm"]["temperature"]
+    max_retries = config["llm"]["max_retries"]
+    max_token = config["llm"]["max_token"]
+    chunk_size = config["langraph"]["chunk_size"]
+    chunk_overlap = config["langraph"]["chunk_overlap"]
+    summary_token_max = config["langraph"]["summary_token_max"]
+    map_prompt_str = config["prompt"]["map_prompt"]
+    reduce_prompt_str = config["prompt"]["reduce_prompt"]
 
     # Initialize the LLM instance
     # os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
@@ -60,7 +97,6 @@ def initialize_model(core: Core):
         timeout=None,
         max_retries=max_retries,
     )
-
 
     # Define prompt templates and chains for summarization
     map_prompt = ChatPromptTemplate.from_messages(
