@@ -1,7 +1,7 @@
 import re
 from typing import Optional
 
-NUMERAL_HEADER_REGEX = r"^\d+(\.| )?([A-Z][a-z]+)" # Starts with a number (int not float) e.g. 1. <Title>, 1 <Title>, 1<Title>...
+NUMERAL_HEADER_REGEX = r"^([0-9]+)((\.\s)|\s|\.)([A-Z][a-z]+)" # Starts with a number (int not float) e.g. 1. <Title>, 1 <Title>..
 ROMAN_NUM_HEADER_REGEX = r"^(X{0,2}(IX|IV|V?I{0,3}))\b[\s.]+[A-Za-z0-9]+" # Roman numerals up to 20
 HEADER_REGEX = re.compile(f"{NUMERAL_HEADER_REGEX}|{ROMAN_NUM_HEADER_REGEX}")
 
@@ -21,8 +21,10 @@ def is_valid_header(new_header: str, prev_header: str) -> bool:
     if prev_header is None:
         return True
     new_header = parse_roman_numeral(new_header)
-    prev_header = parse_roman_numeral(prev_header)
     new_section_num = extract_section_number(new_header)
+    if new_section_num > 20:
+        return False
+    prev_header = parse_roman_numeral(prev_header)
     prev_section_num = extract_section_number(prev_header)
     return new_section_num > prev_section_num
 
