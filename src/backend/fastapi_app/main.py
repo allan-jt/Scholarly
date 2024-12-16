@@ -97,7 +97,7 @@ async def get_chunks():
     # Since this request doesn't come with any anything
     # we use experimental pdf links below
     pdf_links = [
-        "http://arxiv.org/pdf/cond-mat/0102536v1",
+        # "http://arxiv.org/pdf/cond-mat/0102536v1",
         # "http://arxiv.org/pdf/FAKE_URL",  # should raise exception
         "http://arxiv.org/pdf/1802.06593v1",
     ]
