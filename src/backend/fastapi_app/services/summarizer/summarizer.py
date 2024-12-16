@@ -25,11 +25,13 @@ class SummarizerSingleton:
         def summarize_pdfs_in_partition(partition):
             core = initialize_model(Core())
 
-            for i, pdf in enumerate(partition):
+            for pdf in partition:
+                summarized_pdf = []
                 for chunk in pdf:  # Iterate over chunks in the PDF
                     header = chunk["header"]
                     text = chunk["text"]
                     summarized_chunk = summary(text, core)
-                    yield (i, header, summarized_chunk)  # Yield results
+                    summarized_pdf.append({"header": header, "summary": summarized_chunk["final_summary"]})
+                yield summarized_pdf
 
         return pdfs.mapPartitions(summarize_pdfs_in_partition)
