@@ -12,7 +12,6 @@ class SummarizerSingleton:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(SummarizerSingleton, cls).__new__(cls)
-            # get_spark_context().addPyFile("/app/services/summarizer/my_files.zip")
         return cls._instance
 
     def summarize_chunks_in_partition(self, partition):
@@ -21,3 +20,16 @@ class SummarizerSingleton:
 
     def summarize(self, chunks: RDD) -> RDD:
         return chunks.mapPartitions(self.summarize_chunks_in_partition)
+
+    def summarize_pdfs(self, pdfs: RDD) -> RDD:
+        def summarize_pdfs_in_partition(partition):
+            core = initialize_model(Core())
+
+            for i, pdf in enumerate(partition):
+                for chunk in pdf:  # Iterate over chunks in the PDF
+                    header = chunk["header"]
+                    text = chunk["text"]
+                    summarized_chunk = summary(text, core)
+                    yield (i, header, summarized_chunk)  # Yield results
+
+        return pdfs.mapPartitions(summarize_pdfs_in_partition)

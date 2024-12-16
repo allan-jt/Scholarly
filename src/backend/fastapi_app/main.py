@@ -5,8 +5,6 @@ import os
 # Third party imports
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pyspark.sql.types import IntegerType
-import requests
 from io import BytesIO
 from fastapi.responses import StreamingResponse
 import uuid
@@ -91,44 +89,25 @@ async def say_hello(name: str):
     return f"Hello {name}!"
 
 
-async def store_pdf_to_redis(req_id, pdf: any) -> None:
-    redis_db = get_redis_pdfs()
-    await redis_db.rpush(req_id, pdf)
-
-
-async def get_pdf_from_redis(req_id) -> any:
-    redis_db = get_redis_pdfs()
-    return await redis_db.lrange(req_id, 0, -1)  # Use lrange to get a list of PDFs
-
-
 @app.get("/chunk")
 async def get_chunks():
-    # # For fetching
-    # request_id = str(uuid.uuid4())
-    # response = requests.get("https://arxiv.org/pdf/1906.04393")
-    # await store_pdf_to_redis(request_id, response.content)
-
-    # # For chunking
-    # pdfs = await get_pdf_from_redis(request_id)
-    # for pdf in pdfs:
-    #     pdf_stream = BytesIO(response.content)
-    #     return StreamingResponse(pdf_stream, media_type="application/pdf")
-
-    # Testing
+    # Assign a unique ID to the request
     request_id = str(uuid.uuid4())
-    # pdf_links = [
-    #     'http://arxiv.org/pdf/cond-mat/0102536v1',
-    #     'http://arxiv.org/pdf/astro-ph/0608371v1',
-    #     'http://arxiv.org/pdf/1802.06593v1'
-    # ]
+
+    # Since this request doesn't come with any anything
+    # we use experimental pdf links below
     pdf_links = [
         "http://arxiv.org/pdf/cond-mat/0102536v1",
-        "http://arxiv.org/pdf/FAKE_URL",  # should raise exception
+        # "http://arxiv.org/pdf/FAKE_URL",  # should raise exception
         "http://arxiv.org/pdf/1802.06593v1",
     ]
+
+    # We extract the PDFs and store them in Redis
     await store_in_redis(request_id, pdf_links)
 
-    pdfs = await get_pdf_from_redis(request_id)
-    # pdf_stream = BytesIO(pdfs[0])   # 'http://arxiv.org/pdf/cond-mat/0102536v1'
-    pdf_stream = BytesIO(pdfs[1])  # 'http://arxiv.org/pdf/astro-ph/0608371v1'
-    return StreamingResponse(pdf_stream, media_type="application/pdf")
+    # We use chunker to chunk the individual PDFs
+    chunked_pdfs = await ChunkerSingleton().chunker(request_id)
+
+    # We use summarizer to summarize the chunks
+    # return SummarizerSingleton().summarize_pdfs(chunks).collect()
+    return SummarizerSingleton().summarize_pdfs(chunked_pdfs).collect()
