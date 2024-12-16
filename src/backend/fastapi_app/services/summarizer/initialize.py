@@ -1,5 +1,6 @@
 import os
-from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
+# from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.chains.combine_documents.reduce import (
@@ -12,6 +13,7 @@ from langgraph.constants import START, END, Send
 from langgraph.graph import StateGraph
 from typing import List, Literal, TypedDict, Annotated
 import operator
+import yaml
 
 # Import the core module to access and modify global variables
 from .core import Core
@@ -28,40 +30,56 @@ def initialize_model(core: Core):
 
     # Set your GROQ API key securely (replace 'your_api_key_here' with your actual API key)
     # It's recommended to use environment variables or secure storage for API keys
-    os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
+
+    with open("./services/summarizer/config.yaml",'r') as f:
+        config=yaml.safe_load(f)
+    model_name=config["llm"]["model_name"]
+    temperature=config["llm"]["temperature"]
+    max_retries=config["llm"]["max_retries"]
+    max_token=config["llm"]["max_token"]
+    chunk_size=config["langraph"]["chunk_size"]
+    chunk_overlap=config["langraph"]["chunk_overlap"]
+    summary_token_max=config["langraph"]["summary_token_max"]
+    map_prompt_str=config["prompt"]["map_prompt"]
+    reduce_prompt_str=config["prompt"]["reduce_prompt"]
 
     # Initialize the LLM instance
-    core.llm = ChatGroq(
-        model="llama-3.1-8b-instant",
-        temperature=0,
-        max_tokens=500,
+    # os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
+    # core.llm = ChatGroq(
+    #     model=model_name,
+    #     temperature=temperature,
+    #     max_tokens=max_token,
+    #     timeout=None,
+    #     max_retries=max_retries,
+    # )
+    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+    core.llm = ChatOpenAI(
+        model=model_name,
+        temperature=temperature,
+        max_tokens=max_token,
         timeout=None,
-        max_retries=2,
+        max_retries=max_retries,
     )
+
 
     # Define prompt templates and chains for summarization
     map_prompt = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
-                "Write a detailed summary of the following and only return the summary:\n\n{context}",
+                map_prompt_str,
             )
         ]
     )
     map_chain = map_prompt | core.llm | StrOutputParser()
 
-    reduce_template = """
-    The following is a set of summaries:
-    {docs}
-    Take these and distill it into a final, consolidated summary of the main themes.
-    Only include the final summary.
-    """
+    reduce_template = reduce_prompt_str
     reduce_prompt = ChatPromptTemplate.from_messages([("human", reduce_template)])
     reduce_chain = reduce_prompt | core.llm | StrOutputParser()
 
     # Initialize a text splitter for chunking input text
     core.text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1500, chunk_overlap=0, length_function=len
+        chunk_size=chunk_size, chunk_overlap=chunk_overlap, length_function=len
     )
 
     # Define the overall state for the state graph
@@ -108,7 +126,7 @@ def initialize_model(core: Core):
         Reduces the number of summaries by collapsing them iteratively.
         """
         doc_lists = split_list_of_docs(
-            state["collapsed_summaries"], length_function, 500
+            state["collapsed_summaries"], length_function, summary_token_max
         )
         results = []
         for doc_list in doc_lists:
@@ -126,7 +144,7 @@ def initialize_model(core: Core):
         Determines whether further collapsing of summaries is needed.
         """
         num_tokens = length_function(state["collapsed_summaries"])
-        if num_tokens > 500:
+        if num_tokens > summary_token_max:
             return "collapse_summaries"
         else:
             return "generate_final_summary"

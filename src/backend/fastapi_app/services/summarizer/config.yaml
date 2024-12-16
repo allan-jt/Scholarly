@@ -1,0 +1,20 @@
+llm:
+ model_name: "gpt-4o-mini"
+ temperature: 0
+ max_token: 500   # Max number of tokens to generate for each input text
+ max_retries: 2
+
+langraph:
+ chunk_size: 5000   # chunck the input tokens into smaller subdocs if exceeded this number
+ chunk_overlap: 0
+ summary_token_max: 1000  # Recursive summarization if summary exceed this number
+ recursion_limit: 10   # Max recursion of above step
+
+
+prompt:
+ map_prompt: "You are an assistant highly skilled at summarizing segments of academic research papers. I will provide you with one section of the paper at a time. You will not receive the entire paper at once. Based solely on the segment you are given, please produce a concise and accurate summary of its key points.\n Your summary should:\n 1. Capture the primary focus of the given section. 2. Heightlight the key words. \n 2. Clearly describe methodologies and its conterparts if there were any, highlight these and their outcomes. \n 3. Include important quantitative or qualitative data if it appears in the text. \n 4.  Exclude any references or citation lists. If the section includes what appears to be a reference section or citation details, ignore them. 5. Keep the summaries brief and easy to read in a minute. Summarize the following text:\\n\\n{context}. Output the summary only."
+ reduce_prompt: "The following is several chunk-level summaries created in isolation from a specific section in a research paper: \n {docs}.  Take these and distill it into a final, consolidated summary  of the main themes."
+
+# Another way of prompt: Generate a more distilled summary faster
+#  map_prompt: "Write a detailed summary of the following and only return the summary:\n\n{context}"
+#  reduce_prompt: "The following is a set of summaries: \n {docs} Take these and distill it into a final, consolidated summary of the main themes. Only include the final summary."
