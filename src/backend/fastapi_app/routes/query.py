@@ -87,10 +87,48 @@ async def query_advanced(params: Annotated[AdvancedQueryParams, Query()]) -> dic
     Returns:
         dict: a dictionary containing arXiv data
     """
-    # # Make concurrent calls
-    # arxiv_data, elsevier_data, ieee_data = await asyncio.gather(arxiv.fetch(), elsevier.fetch(), ieee.fetch())
+    # Fetch data from arXiv API
+    async with log_async('Fetching data from arXiv API'):
+        arxiv_params = params.to_arxiv()
+        arxiv_response = await arxiv.fetch(**arxiv_params)
 
-    arxiv_params = params.to_arxiv()
-    arxiv_data = await arxiv.fetch(**arxiv_params)
-    
+    # Extract entries and respective PDF links
+    entries = arxiv_response['feed']['entry']
+    pdf_links = [
+        link['@href']
+        for entry in entries
+        for link in entry['link']
+        if link.get('@type') == 'application/pdf'
+    ]
+
+    # Assign unique ID to the request
+    request_id = str(uuid.uuid4())
+
+    # Extract and store PDFs in Redis
+    async with log_async('Storing PDFs in Redis'):
+        await pdf.store_in_redis(request_id, pdf_links)
+
+    # Chunk each PDF into sections
+    async with log_async('Chunking each PDF into sections'):
+        chunked_pdfs = await ChunkerSingleton().chunker(request_id)
+
+    # Summarize each section of each PDF
+    with log('Summarizing each chunk'):
+        summarized_pdfs = SummarizerSingleton().summarize_pdfs(chunked_pdfs).collect()
+
+    # Build final output
+    arxiv_data = [
+        {
+            'id': entry['id'],
+            'updated': entry['updated'],
+            'published': entry['published'],
+            'title': entry['title'],
+            'abstract': entry['summary'],
+            'author': entry['author'],
+            'pdf': pdf_link,
+            'summary': summarized_chunks
+        }
+        for entry, pdf_link, summarized_chunks in zip(entries, pdf_links, summarized_pdfs)
+    ]
+
     return {'arxiv': arxiv_data}
