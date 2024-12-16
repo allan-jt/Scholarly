@@ -33,6 +33,7 @@ goin_database:
 	docker exec -it ${DATABASE_CONTNR} /bin/bash
 
 clean: rm_containers rm_images rm_networks
+	rm -rf src/backend/fastapi_app/worker_files.zip src/backend/fastapi_app/requirements.txt
 
 prune:
 	docker system prune

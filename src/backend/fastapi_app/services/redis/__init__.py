@@ -21,4 +21,15 @@ def get_redis_chunks() -> aioredis.Redis:
     return redisInstance.get_redis_chunks()
 
 
-__all__ = ["initialize_redis", "close_redis", "get_redis_results", "get_redis_chunks"]
+def get_redis_pdfs() -> aioredis.Redis:
+    redisInstance = RedisSingleton()
+    return redisInstance.get_redis_pdfs()
+
+
+__all__ = [
+    "initialize_redis",
+    "close_redis",
+    "get_redis_results",
+    "get_redis_chunks",
+    "get_redis_pdfs",
+]

@@ -7,7 +7,7 @@ class BaseQueryParams(BaseModel):
     # Config params shared between query and query_advanced endpoints
     boolean_operator: Literal['AND', 'OR', 'ANDNOT'] = 'AND'
     start: int = Field(0, ge=0)
-    max_results: int = Field(5, ge=1)
+    max_results: int = Field(3, ge=1)
     sort_by: Literal['relevance', 'lastUpdatedDate', 'submittedDate'] | None = None
     sort_order: Literal['ascending', 'descending'] | None = None
 
