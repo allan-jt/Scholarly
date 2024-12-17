@@ -24,6 +24,7 @@ footer {
     width: 100vw;
     background: #36beff;
     min-height: 60px;
+    z-index: -1;
 }
 
 footer .wave {
