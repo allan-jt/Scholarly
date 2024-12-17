@@ -166,3 +166,12 @@ footer .social-icons li a svg:hover {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.search-result-title {
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2; /* Number of lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
