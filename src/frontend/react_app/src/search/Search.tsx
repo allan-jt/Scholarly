@@ -6,16 +6,20 @@ import "../App.css";
 function Search() {
     return (
         <div
+            className="content"
             style={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                marginTop: "40px",
             }}
         >
             <Typography
                 className="gradient-text"
-                sx={{ fontSize: "60px", fontWeight: 700, margin: "30px" }}
+                sx={{
+                    fontSize: "60px",
+                    fontWeight: 700,
+                    margin: "80px 30px 30px 30px",
+                }}
             >
                 Scholarly
             </Typography>

@@ -17,8 +17,6 @@ export default function SearchBar() {
         if (trimmedQuery) {
             const searchParams = new URLSearchParams({
                 all: trimmedQuery,
-                start: "0",
-                max_results: "10",
             });
             navigate({
                 pathname: "/search_result",
