@@ -1,5 +1,4 @@
 import { Card, CardContent, Typography, Link } from "@mui/material";
-import ReactMarkdown from "react-markdown";
 
 export interface Article {
     id: string;
@@ -66,94 +65,83 @@ const SearchResultTable: React.FC<Article> = ({
                             {id.split("/").pop()}
                         </Link>
                     )}
-                    <div
-                        style={{
-                            overflow: "auto",
-                            maxHeight: "240px",
-                        }}
-                    >
-                        {title && (
-                            <Typography
-                                sx={{
-                                    lineHeight: 1.2,
+                    {title && (
+                        <Typography
+                            sx={{
+                                lineHeight: 1.2,
+                                fontWeight: 500,
+                                marginBottom: "0.8rem",
+                            }}
+                        >
+                            {title}
+                        </Typography>
+                    )}
+
+                    {authorList.length > 0 && (
+                        <div>
+                            <p
+                                style={{
+                                    fontSize: "14px",
+                                    marginTop: "10px",
+                                    marginBottom: 0,
                                     fontWeight: 500,
-                                    marginBottom: "0.8rem",
                                 }}
                             >
-                                {title}
+                                Authors
+                            </p>
+                            <Typography
+                                className="search-result-author"
+                                fontSize="14px"
+                                sx={{
+                                    lineHeight: 1.1,
+                                }}
+                            >
+                                {authorList.map((item) => item.name).join(", ")}
                             </Typography>
-                        )}
-
-                        {authorList.length > 0 && (
-                            <div>
-                                <p
-                                    style={{
-                                        fontSize: "14px",
-                                        marginTop: "10px",
-                                        marginBottom: 0,
-                                        fontWeight: 500,
-                                    }}
-                                >
-                                    Authors
-                                </p>
-                                <Typography
-                                    className="search-result-author"
-                                    fontSize="14px"
-                                    sx={{
-                                        lineHeight: 1.1,
-                                    }}
-                                >
-                                    {authorList
-                                        .map((item) => item.name)
-                                        .join(", ")}
-                                </Typography>
-                            </div>
-                        )}
-                        {abstract && (
-                            <div>
-                                <p
-                                    style={{
-                                        fontSize: "14px",
-                                        marginTop: "10px",
-                                        marginBottom: 0,
-                                        fontWeight: 500,
-                                    }}
-                                >
-                                    Abstract
-                                </p>
-                                <Typography
-                                    fontSize="14px"
-                                    className="search-result-abstract"
-                                >
-                                    {abstract}
-                                </Typography>
-                            </div>
-                        )}
-                        {published && (
-                            <div>
-                                <p
-                                    style={{
-                                        fontSize: "14px",
-                                        marginTop: "10px",
-                                        marginBottom: 0,
-                                        fontWeight: 500,
-                                    }}
-                                >
-                                    Date Submitted
-                                </p>
-                                <Typography fontSize="14px">
-                                    {published.split("T")[0]}
-                                    {updated &&
-                                        ` (Last Updated: ${
-                                            updated.split("T")[0]
-                                        })`}
-                                </Typography>
-                            </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
+                    {abstract && (
+                        <div>
+                            <p
+                                style={{
+                                    fontSize: "14px",
+                                    marginTop: "10px",
+                                    marginBottom: 0,
+                                    fontWeight: 500,
+                                }}
+                            >
+                                Abstract
+                            </p>
+                            <Typography
+                                fontSize="14px"
+                                className="search-result-abstract"
+                            >
+                                {abstract}
+                            </Typography>
+                        </div>
+                    )}
+                    {published && updated && (
+                        <div>
+                            <p
+                                style={{
+                                    fontSize: "14px",
+                                    marginTop: "10px",
+                                    marginBottom: 0,
+                                    fontWeight: 500,
+                                }}
+                            >
+                                Date Submitted
+                            </p>
+                            <Typography fontSize="14px">
+                                {published.split("T")[0]} (Last Updated:{" "}
+                                {updated.split("T")[0]})
+                            </Typography>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 
+            {/* Summary Card */}
             <Card
                 elevation={2}
                 sx={{
@@ -165,13 +153,13 @@ const SearchResultTable: React.FC<Article> = ({
                         md: "2px",
                         lg: "2px",
                     },
-                    padding: "10px",
                     marginBottom: {
-                        xs: "2px",
-                        sm: "2px",
+                        xs: "20px",
+                        sm: "20px",
                         md: "20px",
                         lg: "20px",
                     },
+                    padding: "10px",
                     borderRadius: "15px",
                     backgroundColor: (theme) =>
                         theme.palette.mode === "light" ? "#FAFAFE" : "#202031",
@@ -182,6 +170,7 @@ const SearchResultTable: React.FC<Article> = ({
                         color="secondary"
                         variant="subtitle2"
                         fontWeight={500}
+                        marginBottom={"10px"}
                     >
                         Summary
                     </Typography>
@@ -197,8 +186,7 @@ const SearchResultTable: React.FC<Article> = ({
                                 <p>
                                     <b>{item.header}</b>
                                 </p>
-                                <ReactMarkdown>{item.summary}</ReactMarkdown>
-                                {/* <p style={{ margin: "0" }}>{item.summary}</p> */}
+                                <p style={{ margin: "0" }}>{item.summary}</p>
                             </div>
                         ))}
                     </div>

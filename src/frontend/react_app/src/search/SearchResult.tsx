@@ -7,6 +7,7 @@ import SearchDropDown from "./SearchDropDown";
 import SearchResultTable, { Article } from "./SearchResultTable";
 import { sortByOptions, orderByOptions } from "./SearchMenuItems";
 import ErrorDisplay from "./ErrorDisplay";
+
 import testData from "./test_response.json";
 
 const ITEMS_PER_PAGE = 3;
@@ -50,6 +51,10 @@ function SearchResult() {
                 `${api}${endpoint}?${queryParams.toString()}`
             );
             const result = response.data.arxiv || {};
+
+            // console.log(`${api}${endpoint}?${queryParams.toString()}`);
+            // console.log(response);
+            // console.log(response.data);
             // const response = testData;
             // const result = response.arxiv;
             const totalResults = result.length;
