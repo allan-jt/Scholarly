@@ -1,129 +1,112 @@
 import { useSearchParams } from "react-router-dom";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { Paper, Typography, Backdrop, CircularProgress } from "@mui/material";
-import Pagination from "@mui/material/Pagination";
-import SearchDropDown from "./SearchDropDown";
+import { Box, Paper, Typography } from "@mui/material";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
+import ReportGmailerrorredIcon from "@mui/icons-material/ReportGmailerrorred";
 import SearchResultTable, { Article } from "./SearchResultTable";
-import { sortByOptions, orderByOptions } from "./SearchMenuItems";
-import ErrorDisplay from "./ErrorDisplay";
 
-import testData from "./test_response.json";
-
-const ITEMS_PER_PAGE = 3;
-
-function SearchResult() {
+export default function SearchResult() {
     const api = import.meta.env.VITE_BACKEND_URL;
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const [data, setData] = useState<Article[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [resultCount, setResultCount] = useState(0);
-    const [pageNum, setPageNum] = useState(1);
-
-    const sort_by = searchParams.get("sort_by") || "relevance";
-    const sort_order = searchParams.get("sort_order") || "descending";
-
-    const updateSearchParams = useCallback(
-        (key: string, value: string) => {
-            const updatedParams = new URLSearchParams(searchParams.toString());
-            updatedParams.set(key, value);
-            setSearchParams(updatedParams);
-        },
-        [searchParams, setSearchParams]
-    );
-
-    const fetchData = useCallback(async () => {
-        setLoading(true);
-        setError("");
-
-        try {
-            const start = (pageNum - 1) * ITEMS_PER_PAGE + 1;
-            const queryParams = new URLSearchParams(searchParams.toString());
-            queryParams.set("start", start.toString());
-            // queryParams.set("max_results", ITEMS_PER_PAGE.toString());
-            queryParams.set("sort_by", sort_by);
-            queryParams.set("sort_order", sort_order);
-            const endpoint = searchParams.has("all")
-                ? "/query"
-                : "/query/advanced";
-            const response = await axios.get(
-                `${api}${endpoint}?${queryParams.toString()}`
-            );
-            const result = response.data.arxiv || {};
-
-            // console.log(`${api}${endpoint}?${queryParams.toString()}`);
-            // console.log(response);
-            // console.log(response.data);
-            // const response = testData;
-            // const result = response.arxiv;
-            const totalResults = result.length;
-            setResultCount(totalResults);
-
-            Array.isArray(result) ? setData(result) : setData([result]);
-        } catch (e) {
-            setError(
-                e instanceof Error ? e.message : "An unknown error occurred."
-            );
-        } finally {
-            setLoading(false);
-        }
-    }, [api, searchParams, pageNum]);
 
     useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            setError("");
+            try {
+                // Determine endpoint based on param length
+                const endpoint =
+                    searchParams.toString().split("&").length > 3
+                        ? "/query/advanced"
+                        : "/query";
+                const queryParams = searchParams.toString();
+                const response = await axios.get(
+                    `${api}${endpoint}?${queryParams}`
+                );
+                const result = response.data.arxiv.feed.entry || [];
+                if (Array.isArray(result)) {
+                    setData(result);
+                } else {
+                    setData([result]);
+                }
+            } catch (e) {
+                setError(
+                    e instanceof Error ? e.message : "An unknown error occurred"
+                );
+            } finally {
+                setLoading(false);
+            }
+        };
+
         fetchData();
-    }, [fetchData]);
+    }, [searchParams, api]);
 
-    // Handle Dropdown and Pagination Changes
-    const handleDropdownChange = (name: string, value: string) =>
-        updateSearchParams(name, value);
-
-    const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
-        setPageNum(value);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    const ResultStats = () => (
-        <Typography
-            fontWeight={500}
-            // fontSize={"smaller"}
-            color="secondary"
-            sx={{ width: "40%", marginRight: "1%" }}
-        >
-            {`Showing ${(pageNum - 1) * ITEMS_PER_PAGE + 1} to ${Math.min(
-                pageNum * ITEMS_PER_PAGE,
-                resultCount
-            )} of ${resultCount} results`}
-        </Typography>
-    );
-
-    if (error) return <ErrorDisplay />;
+    if (error) {
+        console.log(error);
+        return (
+            <>
+                <Box
+                    component="section"
+                    sx={{
+                        p: 2,
+                        width: "40%",
+                        position: "fixed",
+                        top: "20%",
+                        left: "30%",
+                        borderRadius: "10px",
+                        textAlign: "center",
+                        backgroundColor: (theme) =>
+                            theme.palette.mode === "light"
+                                ? "#FAFAFE"
+                                : "#202031",
+                    }}
+                >
+                    <ReportGmailerrorredIcon
+                        color="secondary"
+                        fontSize="large"
+                    />
+                    <Typography
+                        color="secondary"
+                        variant="subtitle1"
+                        gutterBottom
+                    >
+                        An error occured! Please try searching again.
+                    </Typography>
+                </Box>
+            </>
+        );
+    }
 
     return (
-        <div
-            className="content"
-            style={{ display: "flex", flexDirection: "column" }}
-        >
+        <div style={{ display: "flex" }}>
             <Backdrop
-                sx={{
+                sx={(theme) => ({
                     color: "#fff",
-                    zIndex: (theme) => theme.zIndex.drawer + 1,
-                }}
+                    zIndex: theme.zIndex.drawer + 1,
+                })}
                 open={loading}
             >
                 <CircularProgress color="inherit" />
             </Backdrop>
-            {/* <Box
+
+            <Box
                 component="section"
                 sx={{
                     p: 2,
-                    width: { xs: "76%", sm: "76%", md: "40%" },
+                    width: { xs: "76%", sm: "76%", md: "40%", lg: "40%" },
                     height: "80vh",
-                    marginTop: "2%",
+                    marginTop: { xs: "2%", sm: "2%", md: "2%", lg: "2%" },
+                    marginLeft: { xs: "0%", sm: "0%", md: "2%", lg: "2%" },
+                    padding: "2%",
                     position: "fixed",
-                    left: { xs: "12%", md: "57%" },
+                    left: { xs: "12%", sm: "12%", md: "55%", lg: "55%" },
+                    zIndex: { sm: 100, md: -100 },
                     borderRadius: "10px",
-                    zIndex: 1,
                     backgroundColor: (theme) =>
                         theme.palette.mode === "light" ? "#FAFAFE" : "#202031",
                 }}
@@ -140,115 +123,41 @@ function SearchResult() {
                         Select an article to view the summary.
                     </Typography>
                 )}
-            </Box> */}
-            {!loading && (
-                <Paper
-                    component="section"
-                    elevation={0}
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        p: 0,
-                        // width: { xs: "auto", sm: "auto", md: "52%" },
-                        width: { xs: "auto", sm: "auto", md: "auto" },
-                        maxHeight: "90%",
-                        margin: {
-                            xs: "2% 3% 3% 3%",
-                            sm: "2% 3% 3% 3%",
-                            md: "2% 0 3% 3%",
-                            // lg: "2% 0 3% 3%",
-                            lg: "2% 3% 2% 3%",
-                        },
-                        borderRadius: "10px",
-                    }}
-                >
-                    <div
-                        style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            alignSelf: "flex-start",
-                            marginBottom: "2%",
-                            width: "-webkit-fill-available",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                        }}
-                    >
-                        <ResultStats />
-                        <div style={{ width: "300px" }}>
-                            <SearchDropDown
-                                id="sort_by_search-result"
-                                label="Sort By"
-                                value={sort_by}
-                                options={sortByOptions}
-                                onChange={(value) =>
-                                    handleDropdownChange("sort_by", value)
-                                }
-                                selectSize="small"
-                            />
-                            <SearchDropDown
-                                id="order_by_search-result"
-                                label="Order By"
-                                value={sort_order}
-                                options={orderByOptions}
-                                onChange={(value) =>
-                                    handleDropdownChange("sort_order", value)
-                                }
-                                selectSize="small"
-                            />
-                        </div>
-                    </div>
-                    {data.length === 0 ? (
-                        <Typography variant="body1" sx={{ padding: 2 }}>
-                            No results found.
-                        </Typography>
-                    ) : (
-                        data.map((item, index) => (
-                            <Paper
-                                elevation={0}
-                                sx={{
-                                    display: "flex",
-                                    flexDirection: {
-                                        xs: "column",
-                                        sm: "column",
-                                        md: "row",
-                                        lg: "row",
-                                    },
-                                    width: "100%",
-                                }}
-                                key={index}
-                            >
-                                <SearchResultTable
-                                    key={item.id || index}
-                                    id={item.id || ""}
-                                    pdf={item.pdf || ""}
-                                    title={item.title || "Untitled"}
-                                    author={item.author || []}
-                                    abstract={
-                                        item.abstract || "No abstract available"
-                                    }
-                                    published={item.published || ""}
-                                    updated={item.updated || ""}
-                                    summary={
-                                        item.summary || "No summary available"
-                                    }
-                                />
-                            </Paper>
-                        ))
-                    )}
-                    <Pagination
-                        sx={{ margin: "2%" }}
-                        count={Math.ceil(resultCount / ITEMS_PER_PAGE)}
-                        page={pageNum}
-                        onChange={handlePageChange}
-                        color="secondary"
-                        variant="outlined"
-                        shape="rounded"
-                    />
-                </Paper>
-            )}
+            </Box>
+            <Paper
+                component="section"
+                elevation={0}
+                sx={{
+                    p: 2,
+                    width: { xs: "100%", sm: "94%", md: "52%", lg: "52%" },
+                    maxHeight: "90%",
+                    margin: "2% 0 3% 3%",
+                    padding: 0,
+                    borderRadius: "10px",
+                }}
+            >
+                {!loading && Array.isArray(data) && data.length === 0 ? (
+                    <Typography variant="body1" sx={{ padding: 2 }}>
+                        No results found.
+                    </Typography>
+                ) : (
+                    Array.isArray(data) &&
+                    data.length > 0 &&
+                    data.map((item, index) => {
+                        const articleData: Article = {
+                            id: item.id || "",
+                            title: item.title || "Untitled",
+                            author: item.author || [],
+                            summary: item.summary || "No summary available",
+                            published: item.published || "",
+                            updated: item.updated || "",
+                        };
+                        return (
+                            <SearchResultTable key={index} {...articleData} />
+                        );
+                    })
+                )}
+            </Paper>
         </div>
     );
 }
-
-export default SearchResult;

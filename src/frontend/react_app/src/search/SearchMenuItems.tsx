@@ -34,17 +34,6 @@ export const booleanList = [
 //     { value: "stat", label: "Statistics" },
 // ];
 
-export const sortByOptions = [
-    { value: "relevance", label: "Relevance" },
-    { value: "submittedDate", label: "Submitted Date" },
-    { value: "lastUpdatedDate", label: "Updated Date" },
-];
-
-export const orderByOptions = [
-    { value: "descending", label: "Descending" },
-    { value: "ascending", label: "Ascending" },
-];
-
 export default function SearchMenuItems(
     id: string,
     default_val: string,

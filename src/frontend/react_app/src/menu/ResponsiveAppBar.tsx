@@ -35,7 +35,7 @@ function ResponsiveAppBar({ toggleTheme, darkMode }: ResponsiveAppBarProps) {
     };
 
     return (
-        <AppBar position="fixed" color="inherit">
+        <AppBar position="static" color="inherit">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <SchoolIcon
@@ -109,26 +109,6 @@ function ResponsiveAppBar({ toggleTheme, darkMode }: ResponsiveAppBarProps) {
                             ))}
                         </Menu>
                     </Box>
-                    <SchoolIcon
-                        color="primary"
-                        sx={{ display: { xs: "flex", md: "none" }, mr: 1 }}
-                    />
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="a"
-                        className="gradient-text"
-                        href="/"
-                        sx={{
-                            mr: 2,
-                            display: { xs: "flex", md: "none" },
-                            flexGrow: 1,
-                            fontWeight: 700,
-                            textDecoration: "none",
-                        }}
-                    >
-                        Scholarly
-                    </Typography>
                     <Box
                         sx={{
                             flexGrow: 1,
