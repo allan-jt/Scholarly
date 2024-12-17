@@ -50,7 +50,7 @@ function SearchResult() {
                 `${api}${endpoint}?${queryParams.toString()}`
             );
             const result = response.data.arxiv || {};
-            console.log(`${api}${endpoint}?${queryParams.toString()}`);
+            // console.log(`${api}${endpoint}?${queryParams.toString()}`);
             // const response = testData;
             // const result = response.arxiv;
             const totalResults = result.length;
