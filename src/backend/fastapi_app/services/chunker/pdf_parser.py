@@ -1,5 +1,6 @@
 import pymupdf4llm
 from unstructured.partition.md import partition_md
+from unstructured.chunking.basic import chunk_elements
 import json
 import sys
 from typing import List, Dict
@@ -75,6 +76,8 @@ def md_to_dict(md_text: str, include_ref=False) -> List[Dict[str, str]]:
     current_title = None
     current_text = []
     section_list = []
+    
+    # Chunking by section headers
     for element in elements:
         element_str = str(element)
         # check for element marked as title/header and set as current title if valid
@@ -105,6 +108,13 @@ def md_to_dict(md_text: str, include_ref=False) -> List[Dict[str, str]]:
             current_text.append(element_str)
     if current_title:
         section_list.append({"header": current_title, "text": " ".join(current_text)})
+
+    # Chunking by character count (when no headers are found)
+    # https://docs.unstructured.io/open-source/core-functionality/chunking#basic-chunking-strategy
+    if len(section_list) <= 1:
+        chunks = chunk_elements(elements, max_characters=10000)
+        section_list = [{"header": f"Section {i + 1}", "text": chunk.text} for i, chunk in enumerate(chunks)]
+
     return section_list
 
 
