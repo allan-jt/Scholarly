@@ -45,22 +45,30 @@ def read_root():
     return "Hello, World!"
 
 
-# @app.get("/test_chunk")
-# async def test_chunk():
-#     # Assign a unique ID to the request
-#     request_id = str(uuid.uuid4())
+# Since these requests doesn't come with any anything
+# we use experimental pdf links below
+# pdf_links = [
+#     "http://arxiv.org/pdf/2411.02973.pdf",
+#     # "http://arxiv.org/pdf/FAKE_URL",  # should raise exception
+#     "https://arxiv.org/pdf/2412.06593",
+# ]
 
-#     # Since this request doesn't come with any anything
-#     # we use experimental pdf links below
-#     pdf_links = [
-#         "http://arxiv.org/pdf/2411.02973.pdf",
-#         # "http://arxiv.org/pdf/FAKE_URL",  # should raise exception
-#         "https://arxiv.org/pdf/2412.06593",
-#     ]
 
-#     # We extract the PDFs and store them in Redis
-#     await store_in_redis(request_id, pdf_links)
+@app.get("/test_chunk")
+async def test_chunk():
+    param = {"pdf_link": "http://arxiv.org/pdf/2411.02973.pdf"}
+    pdf_bytes = await fetch_single_pdf(param["pdf_link"])
+    return ChunkerSingleton().chunk_pdf(pdf_bytes)
 
-#     # We use chunker to chunk the individual PDFs
-#     chunked_pdfs = await ChunkerSingleton().chunker(request_id)
-#     return chunked_pdfs.collect()
+
+@app.get("/test_summary")
+async def test_summary():
+    param = {"pdf_link": "http://arxiv.org/pdf/2411.02973.pdf"}
+    pdf_bytes = await fetch_single_pdf(param["pdf_link"])
+    chunked_pdf = ChunkerSingleton().chunk_pdf(pdf_bytes)
+
+    chunked_pdf_rdd = (
+        SparkSessionSingleton().get_spark_context().parallelize(chunked_pdf)
+    )
+    summary = SummarizerSingleton().summarize_chunked_sections(chunked_pdf_rdd)
+    return summary.collect()
