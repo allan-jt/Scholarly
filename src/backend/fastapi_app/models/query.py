@@ -93,5 +93,5 @@ class SummarizeParams(BaseModel):
                 return None
         return value
 
-    def get_pdf(self) -> dict:
-        return {"pdf_link": self.pdf_link}
+    def get_pdf_link(self) -> dict:
+        return self.pdf_link

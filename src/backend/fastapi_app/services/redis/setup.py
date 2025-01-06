@@ -1,6 +1,7 @@
 import aioredis
 import os
 from .process_status import ProcessStatus
+import json
 
 
 class RedisSingleton:
@@ -22,20 +23,24 @@ class RedisSingleton:
             )
 
     async def get_pdf_summary(self, pdf_link: str) -> dict:
-        redis_hash = await self.pdf_summary.hgetall(pdf_link)
-        return {k.decode(): v.decode() for k, v in redis_hash.items()}
+        data = await self.pdf_summary.get(pdf_link)
+        if data is None:
+            return None
+        return json.loads(data)
 
     async def store_pdf_summary(self, pdf_link: str, summary: dict) -> None:
-        await self.pdf_summary.hset(pdf_link, mapping=summary)
-        await self.pdf_summary.expire(pdf_link, 3600)  # expire in 1 hour
+        await self.pdf_summary.set(pdf_link, json.dumps(summary), ex=60)
 
     async def get_pdf_process_status(self, pdf_link: str) -> ProcessStatus:
-        return await self.pdf_process_status.get(pdf_link)
+        status = await self.pdf_process_status.get(pdf_link)
+        if status is None:
+            return None
+        return ProcessStatus[status.decode()]
 
     async def store_pdf_process_status(
         self, pdf_link: str, status: ProcessStatus
     ) -> None:
-        await self.pdf_process_status.set(pdf_link, status, expire=3600)
+        await self.pdf_process_status.set(pdf_link, status.name, ex=60)
 
     async def clear_and_close(self, redis_db: aioredis.Redis) -> None:
         if redis_db:

@@ -2,8 +2,10 @@ from fastapi import APIRouter, Query
 from typing import Annotated
 import asyncio, uuid
 from models.query import QueryParams, AdvancedQueryParams, SummarizeParams
-from services import arxiv, ChunkerSingleton, SummarizerSingleton
+from services import *
+from services import arxiv
 from utilities import log, log_async
+from fastapi import HTTPException
 
 router = APIRouter()
 
@@ -102,21 +104,6 @@ async def query_advanced(params: Annotated[AdvancedQueryParams, Query()]) -> dic
         if link.get("@type") == "application/pdf"
     ]
 
-    # # Assign unique ID to the request
-    # request_id = str(uuid.uuid4())
-
-    # # Extract and store PDFs in Redis
-    # async with log_async('Storing PDFs in Redis'):
-    #     await pdf.store_in_redis(request_id, pdf_links)
-
-    # # Chunk each PDF into sections
-    # async with log_async('Chunking each PDF into sections'):
-    #     chunked_pdfs = await ChunkerSingleton().chunker(request_id)
-
-    # # Summarize each section of each PDF
-    # with log('Summarizing each chunk'):
-    #     summarized_pdfs = SummarizerSingleton().summarize_pdfs(chunked_pdfs).collect()
-
     # Build final output
     arxiv_data = [
         {
@@ -136,13 +123,44 @@ async def query_advanced(params: Annotated[AdvancedQueryParams, Query()]) -> dic
 
 @router.get("/summarize")
 async def summarize(params: Annotated[SummarizeParams, Query()]) -> dict:
-    # check if pdf already stored --> if so send, if not do below
+    pdf_link = params.get_pdf_link()
 
-    # extract pdf
+    rd = RedisSingleton()
+    status: ProcessStatus = await rd.get_pdf_process_status(pdf_link)
 
-    # chunk the pdf
+    if status is not None:
+        delay = 1
+        while status != ProcessStatus.COMPLETED and delay <= 240:
+            await asyncio.sleep(delay)
+            status = await rd.get_pdf_process_status(pdf_link)
+            delay *= 2
+        if status == ProcessStatus.COMPLETED:
+            await rd.store_pdf_process_status(pdf_link, ProcessStatus.COMPLETED)
+            return {"summary": await rd.get_pdf_summary(pdf_link)}
 
-    # summarize pdf
+    try:
+        await rd.store_pdf_process_status(pdf_link, ProcessStatus.PROCCESSING)
+        async with log_async("Fetching PDF from arXiv"):
+            pdf_bytes = await fetch_single_pdf(pdf_link)
 
-    # store summary in results
-    pass
+        with log("Chunking PDF into sections"):
+            chunked_pdf = ChunkerSingleton().chunk_pdf(pdf_bytes)
+
+        with log("Summarizing each chunk"):
+            chunked_pdf_rdd = (
+                SparkSessionSingleton().get_spark_context().parallelize(chunked_pdf)
+            )
+            summary = (
+                SummarizerSingleton()
+                .summarize_chunked_sections(chunked_pdf_rdd)
+                .collect()
+            )
+
+        await rd.store_pdf_process_status(pdf_link, ProcessStatus.COMPLETED)
+        await rd.store_pdf_summary(pdf_link, summary)
+        return {"summary": summary}
+    except Exception as e:
+        status = await rd.get_pdf_process_status(pdf_link)
+        if not status or status != ProcessStatus.COMPLETED:
+            await rd.store_pdf_process_status(pdf_link, ProcessStatus.FAILED)
+        return {"summary": "Error", "error": str(e)}

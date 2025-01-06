@@ -2,7 +2,6 @@ from enum import Enum, auto
 
 
 class ProcessStatus(Enum):
-    EXTRACTING = auto()
-    CHUNKING = auto()
-    SUMMARIZING = auto()
+    PROCCESSING = auto()
     COMPLETED = auto()
+    FAILED = auto()
