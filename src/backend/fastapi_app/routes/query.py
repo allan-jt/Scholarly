@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Query
 from typing import Annotated
 import asyncio, uuid
-from models.query import QueryParams, AdvancedQueryParams
-from services import arxiv, pdf, ChunkerSingleton, SummarizerSingleton
+from models.query import QueryParams, AdvancedQueryParams, SummarizeParams
+from services import arxiv, ChunkerSingleton, SummarizerSingleton
 from utilities import log, log_async
 
 router = APIRouter()
 
-@router.get('')
+
+@router.get("")
 async def query(params: Annotated[QueryParams, Query()]) -> dict:
     """
     Executes a basic query that searches keywords across all query fields
@@ -19,57 +20,57 @@ async def query(params: Annotated[QueryParams, Query()]) -> dict:
         max_results (int, optional): maximum number of results (default: 5)
         sort_by (str, optional): sort criteria ('relevance', 'lastUpdatedDate', 'submittedDate')
         sort_order (str, optional): sort order ('ascending', 'descending')
-    
+
     Returns:
         dict: a dictionary containing arXiv data
     """
     # Fetch data from arXiv API
-    async with log_async('Fetching data from arXiv API'):
+    async with log_async("Fetching data from arXiv API"):
         arxiv_params = params.to_arxiv()
         arxiv_response = await arxiv.fetch(**arxiv_params)
 
     # Extract entries and respective PDF links
-    entries = arxiv_response['feed']['entry']
+    entries = arxiv_response["feed"]["entry"]
     pdf_links = [
-        link['@href']
+        link["@href"]
         for entry in entries
-        for link in entry['link']
-        if link.get('@type') == 'application/pdf'
+        for link in entry["link"]
+        if link.get("@type") == "application/pdf"
     ]
 
-    # Assign unique ID to the request
-    request_id = str(uuid.uuid4())
+    # # Assign unique ID to the request
+    # request_id = str(uuid.uuid4())
 
-    # Extract and store PDFs in Redis
-    async with log_async('Storing PDFs in Redis'):
-        await pdf.store_in_redis(request_id, pdf_links)
+    # # Extract and store PDFs in Redis
+    # async with log_async('Storing PDFs in Redis'):
+    #     await pdf.store_in_redis(request_id, pdf_links)
 
-    # Chunk each PDF into sections
-    async with log_async('Chunking each PDF into sections'):
-        chunked_pdfs = await ChunkerSingleton().chunker(request_id)
+    # # Chunk each PDF into sections
+    # async with log_async('Chunking each PDF into sections'):
+    #     chunked_pdfs = await ChunkerSingleton().chunker(request_id)
 
-    # Summarize each section of each PDF
-    with log('Summarizing each chunk'):
-        summarized_pdfs = SummarizerSingleton().summarize_pdfs(chunked_pdfs).collect()
+    # # Summarize each section of each PDF
+    # with log('Summarizing each chunk'):
+    #     summarized_pdfs = SummarizerSingleton().summarize_pdfs(chunked_pdfs).collect()
 
     # Build final output
     arxiv_data = [
         {
-            'id': entry['id'],
-            'updated': entry['updated'],
-            'published': entry['published'],
-            'title': entry['title'],
-            'abstract': entry['summary'],
-            'author': entry['author'],
-            'pdf': pdf_link,
-            'summary': summarized_chunks
+            "id": entry["id"],
+            "updated": entry["updated"],
+            "published": entry["published"],
+            "title": entry["title"],
+            "abstract": entry["summary"],
+            "author": entry["author"],
+            "pdf": pdf_link,
         }
-        for entry, pdf_link, summarized_chunks in zip(entries, pdf_links, summarized_pdfs)
+        for entry, pdf_link in zip(entries, pdf_links)
     ]
 
-    return {'arxiv': arxiv_data}
+    return {"arxiv": arxiv_data}
 
-@router.get('/advanced')
+
+@router.get("/advanced")
 async def query_advanced(params: Annotated[AdvancedQueryParams, Query()]) -> dict:
     """
     Executes an advanced query that searches keywords across specific query fields
@@ -83,52 +84,65 @@ async def query_advanced(params: Annotated[AdvancedQueryParams, Query()]) -> dic
         max_results (int, optional): maximum number of results (default: 5)
         sort_by (str, optional): sort criteria ('relevance', 'lastUpdatedDate', 'submittedDate')
         sort_order (str, optional): sort order ('ascending', 'descending')
-    
+
     Returns:
         dict: a dictionary containing arXiv data
     """
     # Fetch data from arXiv API
-    async with log_async('Fetching data from arXiv API'):
+    async with log_async("Fetching data from arXiv API"):
         arxiv_params = params.to_arxiv()
         arxiv_response = await arxiv.fetch(**arxiv_params)
 
     # Extract entries and respective PDF links
-    entries = arxiv_response['feed']['entry']
+    entries = arxiv_response["feed"]["entry"]
     pdf_links = [
-        link['@href']
+        link["@href"]
         for entry in entries
-        for link in entry['link']
-        if link.get('@type') == 'application/pdf'
+        for link in entry["link"]
+        if link.get("@type") == "application/pdf"
     ]
 
-    # Assign unique ID to the request
-    request_id = str(uuid.uuid4())
+    # # Assign unique ID to the request
+    # request_id = str(uuid.uuid4())
 
-    # Extract and store PDFs in Redis
-    async with log_async('Storing PDFs in Redis'):
-        await pdf.store_in_redis(request_id, pdf_links)
+    # # Extract and store PDFs in Redis
+    # async with log_async('Storing PDFs in Redis'):
+    #     await pdf.store_in_redis(request_id, pdf_links)
 
-    # Chunk each PDF into sections
-    async with log_async('Chunking each PDF into sections'):
-        chunked_pdfs = await ChunkerSingleton().chunker(request_id)
+    # # Chunk each PDF into sections
+    # async with log_async('Chunking each PDF into sections'):
+    #     chunked_pdfs = await ChunkerSingleton().chunker(request_id)
 
-    # Summarize each section of each PDF
-    with log('Summarizing each chunk'):
-        summarized_pdfs = SummarizerSingleton().summarize_pdfs(chunked_pdfs).collect()
+    # # Summarize each section of each PDF
+    # with log('Summarizing each chunk'):
+    #     summarized_pdfs = SummarizerSingleton().summarize_pdfs(chunked_pdfs).collect()
 
     # Build final output
     arxiv_data = [
         {
-            'id': entry['id'],
-            'updated': entry['updated'],
-            'published': entry['published'],
-            'title': entry['title'],
-            'abstract': entry['summary'],
-            'author': entry['author'],
-            'pdf': pdf_link,
-            'summary': summarized_chunks
+            "id": entry["id"],
+            "updated": entry["updated"],
+            "published": entry["published"],
+            "title": entry["title"],
+            "abstract": entry["summary"],
+            "author": entry["author"],
+            "pdf": pdf_link,
         }
-        for entry, pdf_link, summarized_chunks in zip(entries, pdf_links, summarized_pdfs)
+        for entry, pdf_link in zip(entries, pdf_links)
     ]
 
-    return {'arxiv': arxiv_data}
+    return {"arxiv": arxiv_data}
+
+
+@router.get("/summarize")
+async def summarize(params: Annotated[SummarizeParams, Query()]) -> dict:
+    # check if pdf already stored --> if so send, if not do below
+
+    # extract pdf
+
+    # chunk the pdf
+
+    # summarize pdf
+
+    # store summary in results
+    pass
