@@ -1,8 +1,6 @@
 from services.spark import *
 from services.redis import *
-from pyspark.rdd import RDD
 from .pdf_parser import *
-import requests
 from io import BytesIO
 import fitz
 

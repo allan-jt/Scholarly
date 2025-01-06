@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Query
 from typing import Annotated
-import asyncio, uuid
+import asyncio
 from models.query import QueryParams, AdvancedQueryParams, SummarizeParams
 from services import *
 from services import arxiv
 from utilities import log, log_async
-from fastapi import HTTPException
 
 router = APIRouter()
 
@@ -39,22 +38,6 @@ async def query(params: Annotated[QueryParams, Query()]) -> dict:
         for link in entry["link"]
         if link.get("@type") == "application/pdf"
     ]
-
-    # # Assign unique ID to the request
-    # request_id = str(uuid.uuid4())
-
-    # # Extract and store PDFs in Redis
-    # async with log_async('Storing PDFs in Redis'):
-    #     await pdf.store_in_redis(request_id, pdf_links)
-
-    # # Chunk each PDF into sections
-    # async with log_async('Chunking each PDF into sections'):
-    #     chunked_pdfs = await ChunkerSingleton().chunker(request_id)
-
-    # # Summarize each section of each PDF
-    # with log('Summarizing each chunk'):
-    #     summarized_pdfs = SummarizerSingleton().summarize_pdfs(chunked_pdfs).collect()
-
     # Build final output
     arxiv_data = [
         {
