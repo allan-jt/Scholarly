@@ -1,20 +1,33 @@
 import { useSearchParams } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Paper, Typography, Backdrop, CircularProgress } from "@mui/material";
+import {
+    Paper,
+    Typography,
+    Backdrop,
+    CircularProgress,
+    Box,
+    Card,
+} from "@mui/material";
 import Pagination from "@mui/material/Pagination";
+import { useTheme } from "@mui/material/styles";
 import SearchDropDown from "./SearchDropDown";
 import SearchResultTable, { Article } from "./SearchResultTable";
 import { sortByOptions, orderByOptions } from "./SearchMenuItems";
 import ErrorDisplay from "./ErrorDisplay";
-// import testData from "./test_data.json";
+import Summary, { SummaryItem } from "./Summary";
 
-const ITEMS_PER_PAGE = 3;
+const ITEMS_PER_PAGE = 5;
 
 function SearchResult() {
     const api = import.meta.env.VITE_BACKEND_URL;
+    const theme = useTheme();
+
     const [searchParams, setSearchParams] = useSearchParams();
     const [data, setData] = useState<Article[]>([]);
+    const [summaryRes, setSummaryRes] = useState<SummaryItem[]>([]);
+    const [summaryTitle, setSummaryTitle] = useState("");
+    const [summaryStat, setSummaryStat] = useState("ready"); // "ready", "generating", "done", "error"
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [resultCount, setResultCount] = useState(0);
@@ -32,6 +45,29 @@ function SearchResult() {
         [searchParams, setSearchParams]
     );
 
+    const handleCardClick = async (pdf_link: string, title: string) => {
+        if (!pdf_link) return;
+
+        try {
+            setSummaryStat("generating");
+            setSummaryTitle(title);
+
+            const response = await axios.get(
+                `${api}/query/summarize?pdf_link=${pdf_link}`
+            );
+            setSummaryRes(response.data.summary || []);
+            setSummaryStat("done");
+
+            // Scroll to top for sm,xs screens
+            if (window.innerWidth < theme.breakpoints.values.md) {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+        } catch (error) {
+            console.error("Error fetching summary:", error);
+            setSummaryStat("error");
+        }
+    };
+
     const fetchData = useCallback(async () => {
         setLoading(true);
         setError("");
@@ -40,22 +76,19 @@ function SearchResult() {
             const start = (pageNum - 1) * ITEMS_PER_PAGE + 1;
             const queryParams = new URLSearchParams(searchParams.toString());
             queryParams.set("start", start.toString());
-            // queryParams.set("max_results", ITEMS_PER_PAGE.toString());
+            queryParams.set("max_results", ITEMS_PER_PAGE.toString());
             queryParams.set("sort_by", sort_by);
             queryParams.set("sort_order", sort_order);
+
             const endpoint = searchParams.has("all")
                 ? "/query"
                 : "/query/advanced";
             const response = await axios.get(
                 `${api}${endpoint}?${queryParams.toString()}`
             );
-            const result = response.data.arxiv || {};
-            // console.log(`${api}${endpoint}?${queryParams.toString()}`);
-            // const response = testData;
-            // const result = response.arxiv;
-            const totalResults = result.length;
-            setResultCount(totalResults);
-            Array.isArray(result) ? setData(result) : setData([result]);
+            const result = response.data.arxiv || [];
+            setResultCount(Array.isArray(result) ? result.length : 0);
+            setData(Array.isArray(result) ? result : [result]);
         } catch (e) {
             setError(
                 e instanceof Error ? e.message : "An unknown error occurred."
@@ -63,12 +96,13 @@ function SearchResult() {
         } finally {
             setLoading(false);
         }
-    }, [api, searchParams, pageNum]);
+    }, [api, searchParams, pageNum, sort_by, sort_order]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
+    // Handlers for dropdown and pagination
     const handleDropdownChange = (name: string, value: string) =>
         updateSearchParams(name, value);
 
@@ -115,30 +149,22 @@ function SearchResult() {
                         flexDirection: "column",
                         alignItems: "center",
                         p: 0,
-                        width: { xs: "auto", sm: "auto", md: "auto" },
-                        maxHeight: "90%",
-                        margin: {
-                            xs: "2% 3% 3% 3%",
-                            sm: "2% 3% 3% 3%",
-                            md: "2% 0 3% 3%",
-                            lg: "2% 3% 2% 3%",
-                        },
+                        margin: { xs: "7%", sm: "5%", md: "3%", lg: "3%" },
                         borderRadius: "10px",
                     }}
                 >
-                    <div
-                        style={{
+                    <Box
+                        sx={{
                             display: "flex",
                             flexDirection: "row",
-                            alignSelf: "flex-start",
-                            marginBottom: "2%",
-                            width: "-webkit-fill-available",
                             justifyContent: "space-between",
                             alignItems: "center",
+                            width: "100%",
+                            marginBottom: "2%",
                         }}
                     >
                         <ResultStats />
-                        <div style={{ width: "300px" }}>
+                        <Box sx={{ width: "300px" }}>
                             <SearchDropDown
                                 id="sort_by_search-result"
                                 label="Sort By"
@@ -159,46 +185,68 @@ function SearchResult() {
                                 }
                                 selectSize="small"
                             />
-                        </div>
-                    </div>
-                    {data.length === 0 ? (
-                        <Typography variant="body1" sx={{ padding: 2 }}>
-                            No results found.
-                        </Typography>
-                    ) : (
-                        data.map((item, index) => (
-                            <Paper
-                                elevation={0}
-                                sx={{
-                                    display: "flex",
-                                    flexDirection: {
-                                        xs: "column",
-                                        sm: "column",
-                                        md: "row",
-                                        lg: "row",
-                                    },
-                                    width: "100%",
-                                }}
-                                key={index}
-                            >
-                                <SearchResultTable
-                                    key={item.id || index}
-                                    id={item.id || ""}
-                                    pdf={item.pdf || ""}
-                                    title={item.title || "Untitled"}
-                                    author={item.author || []}
-                                    abstract={
-                                        item.abstract || "No abstract available"
-                                    }
-                                    published={item.published || ""}
-                                    updated={item.updated || ""}
-                                    summary={
-                                        item.summary || "No summary available"
-                                    }
-                                />
-                            </Paper>
-                        ))
-                    )}
+                        </Box>
+                    </Box>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: { xs: "column", md: "row" },
+                            width: "100%",
+                        }}
+                    >
+                        <Summary
+                            title={summaryTitle}
+                            summary={summaryRes}
+                            status={summaryStat}
+                        />
+                        <Box sx={{ width: { xs: "100%", md: "49%" } }}>
+                            {data.length === 0 ? (
+                                <Typography variant="body1" sx={{ padding: 2 }}>
+                                    No results found.
+                                </Typography>
+                            ) : (
+                                data.map((item, index) => (
+                                    <Card
+                                        key={index}
+                                        onClick={() =>
+                                            handleCardClick(
+                                                item.pdf,
+                                                item.title
+                                            )
+                                        }
+                                        elevation={2}
+                                        sx={{
+                                            padding: "10px",
+                                            marginBottom: "20px",
+                                            borderRadius: "15px",
+                                            ":hover": {
+                                                boxShadow:
+                                                    theme.palette.mode ===
+                                                    "light"
+                                                        ? "0 0 10px rgba(100, 100, 100, 0.5)"
+                                                        : "0 0 15px rgba(255,255,255,.5)",
+                                                cursor: "pointer",
+                                            },
+                                        }}
+                                    >
+                                        <SearchResultTable
+                                            id={item.id || ""}
+                                            pdf={item.pdf || ""}
+                                            title={item.title || "Untitled"}
+                                            author={item.author || []}
+                                            abstract={
+                                                item.abstract ||
+                                                "No abstract available"
+                                            }
+                                            published={item.published || ""}
+                                            updated={item.updated || ""}
+                                        />
+                                    </Card>
+                                ))
+                            )}
+                        </Box>
+                    </Box>
+
                     <Pagination
                         sx={{ margin: "2%" }}
                         count={Math.ceil(resultCount / ITEMS_PER_PAGE)}
