@@ -1,4 +1,10 @@
-import { Card, CardContent, Typography, LinearProgress } from "@mui/material";
+import {
+    Box,
+    Card,
+    CardContent,
+    Typography,
+    LinearProgress,
+} from "@mui/material";
 import Markdown from "react-markdown";
 
 export interface SummaryItem {
@@ -40,10 +46,10 @@ const SummaryContent: React.FC<{ title: string; summary: SummaryItem[] }> = ({
         <Typography color="secondary" variant="subtitle2" fontWeight={500}>
             Summary
         </Typography>
-        <div
-            style={{
+        <Box
+            sx={{
                 overflow: "auto",
-                maxHeight: "50vh",
+                maxHeight: { xs: "300px", md: "630px" },
                 fontSize: "14px",
             }}
         >
@@ -58,7 +64,7 @@ const SummaryContent: React.FC<{ title: string; summary: SummaryItem[] }> = ({
                     <Markdown>{item.summary}</Markdown>
                 </div>
             ))}
-        </div>
+        </Box>
     </CardContent>
 );
 
@@ -70,10 +76,11 @@ const Summary: React.FC<SummaryProp> = ({ summary = [], status, title }) => {
             elevation={2}
             sx={{
                 position: { xs: "block", md: "fixed" },
-                width: { xs: "100%", md: "47%" },
-                left: { xs: "0", md: "50%" },
+                width: { xs: "100%", md: "46%" },
+                // height: "-webkit-fill-available",
+                left: { xs: "0", md: "51%" },
                 padding: "10px",
-                marginBottom: "20px",
+                marginBottom: "40px",
                 borderRadius: "15px",
                 backgroundColor: (theme) =>
                     theme.palette.mode === "light" ? "#FAFAFE" : "#202031",

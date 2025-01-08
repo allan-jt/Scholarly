@@ -2,6 +2,7 @@ import { useSearchParams } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import {
+    Button,
     Paper,
     Typography,
     Backdrop,
@@ -49,19 +50,18 @@ function SearchResult() {
         if (!pdf_link) return;
 
         try {
+            // Scroll to top for sm,xs screens
+            if (window.innerWidth < theme.breakpoints.values.md) {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
             setSummaryStat("generating");
             setSummaryTitle(title);
-
+            console.log(`${api}/query/summarize?pdf_link=${pdf_link}`);
             const response = await axios.get(
                 `${api}/query/summarize?pdf_link=${pdf_link}`
             );
             setSummaryRes(response.data.summary || []);
             setSummaryStat("done");
-
-            // Scroll to top for sm,xs screens
-            if (window.innerWidth < theme.breakpoints.values.md) {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-            }
         } catch (error) {
             console.error("Error fetching summary:", error);
             setSummaryStat("error");
@@ -115,6 +115,7 @@ function SearchResult() {
         <Typography
             fontWeight={500}
             color="secondary"
+            variant="subtitle2"
             sx={{ width: "40%", marginRight: "1%" }}
         >
             {`Showing ${(pageNum - 1) * ITEMS_PER_PAGE + 1} to ${Math.min(
@@ -149,44 +150,10 @@ function SearchResult() {
                         flexDirection: "column",
                         alignItems: "center",
                         p: 0,
-                        margin: { xs: "7%", sm: "5%", md: "3%", lg: "3%" },
+                        margin: "40px",
                         borderRadius: "10px",
                     }}
                 >
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            width: "100%",
-                            marginBottom: "2%",
-                        }}
-                    >
-                        <ResultStats />
-                        <Box sx={{ width: "300px" }}>
-                            <SearchDropDown
-                                id="sort_by_search-result"
-                                label="Sort By"
-                                value={sort_by}
-                                options={sortByOptions}
-                                onChange={(value) =>
-                                    handleDropdownChange("sort_by", value)
-                                }
-                                selectSize="small"
-                            />
-                            <SearchDropDown
-                                id="order_by_search-result"
-                                label="Order By"
-                                value={sort_order}
-                                options={orderByOptions}
-                                onChange={(value) =>
-                                    handleDropdownChange("sort_order", value)
-                                }
-                                selectSize="small"
-                            />
-                        </Box>
-                    </Box>
                     <Box
                         sx={{
                             display: "flex",
@@ -200,6 +167,46 @@ function SearchResult() {
                             status={summaryStat}
                         />
                         <Box sx={{ width: { xs: "100%", md: "49%" } }}>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    justifyContent: "space-between",
+                                    alignItems: "flex-start",
+                                    width: "100%",
+                                    marginBottom: "20px",
+                                }}
+                            >
+                                <ResultStats />
+                                <Box sx={{ width: "300px" }}>
+                                    <SearchDropDown
+                                        id="sort_by_search-result"
+                                        label="Sort By"
+                                        value={sort_by}
+                                        options={sortByOptions}
+                                        onChange={(value) =>
+                                            handleDropdownChange(
+                                                "sort_by",
+                                                value
+                                            )
+                                        }
+                                        selectSize="small"
+                                    />
+                                    <SearchDropDown
+                                        id="order_by_search-result"
+                                        label="Order By"
+                                        value={sort_order}
+                                        options={orderByOptions}
+                                        onChange={(value) =>
+                                            handleDropdownChange(
+                                                "sort_order",
+                                                value
+                                            )
+                                        }
+                                        selectSize="small"
+                                    />
+                                </Box>
+                            </Box>
                             {data.length === 0 ? (
                                 <Typography variant="body1" sx={{ padding: 2 }}>
                                     No results found.
@@ -208,12 +215,6 @@ function SearchResult() {
                                 data.map((item, index) => (
                                     <Card
                                         key={index}
-                                        onClick={() =>
-                                            handleCardClick(
-                                                item.pdf,
-                                                item.title
-                                            )
-                                        }
                                         elevation={2}
                                         sx={{
                                             padding: "10px",
@@ -225,7 +226,6 @@ function SearchResult() {
                                                     "light"
                                                         ? "0 0 10px rgba(100, 100, 100, 0.5)"
                                                         : "0 0 15px rgba(255,255,255,.5)",
-                                                cursor: "pointer",
                                             },
                                         }}
                                     >
@@ -241,21 +241,41 @@ function SearchResult() {
                                             published={item.published || ""}
                                             updated={item.updated || ""}
                                         />
+                                        <Button
+                                            className="search-button"
+                                            variant="contained"
+                                            color="secondary"
+                                            sx={{
+                                                margin: "0 16px 16px 16px",
+                                                color: "white",
+                                            }}
+                                            onClick={() =>
+                                                handleCardClick(
+                                                    item.pdf,
+                                                    item.title
+                                                )
+                                            }
+                                        >
+                                            Summarize
+                                        </Button>
                                     </Card>
                                 ))
                             )}
+                            <Pagination
+                                sx={{
+                                    margin: "20px",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                }}
+                                count={Math.ceil(resultCount / ITEMS_PER_PAGE)}
+                                page={pageNum}
+                                onChange={handlePageChange}
+                                color="secondary"
+                                variant="outlined"
+                                shape="rounded"
+                            />
                         </Box>
                     </Box>
-
-                    <Pagination
-                        sx={{ margin: "2%" }}
-                        count={Math.ceil(resultCount / ITEMS_PER_PAGE)}
-                        page={pageNum}
-                        onChange={handlePageChange}
-                        color="secondary"
-                        variant="outlined"
-                        shape="rounded"
-                    />
                 </Paper>
             )}
         </div>
