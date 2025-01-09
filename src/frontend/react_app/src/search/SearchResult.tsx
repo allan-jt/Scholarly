@@ -87,7 +87,8 @@ function SearchResult() {
                 `${api}${endpoint}?${queryParams.toString()}`
             );
             const result = response.data.arxiv || [];
-            setResultCount(Array.isArray(result) ? result.length : 0);
+            const count = response.data.totalResults || 0;
+            setResultCount(count);
             setData(Array.isArray(result) ? result : [result]);
         } catch (e) {
             setError(
@@ -146,11 +147,10 @@ function SearchResult() {
                     component="section"
                     elevation={0}
                     sx={{
+                        padding: { xs: "6%", md: "3%" },
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        p: 0,
-                        margin: "40px",
                         borderRadius: "10px",
                     }}
                 >
@@ -166,7 +166,7 @@ function SearchResult() {
                             summary={summaryRes}
                             status={summaryStat}
                         />
-                        <Box sx={{ width: { xs: "100%", md: "49%" } }}>
+                        <Box sx={{ width: { xs: "100%", md: "47%" } }}>
                             <Box
                                 sx={{
                                     display: "flex",

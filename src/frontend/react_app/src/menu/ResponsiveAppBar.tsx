@@ -36,7 +36,7 @@ function ResponsiveAppBar({ toggleTheme, darkMode }: ResponsiveAppBarProps) {
 
     return (
         <AppBar position="fixed" color="inherit">
-            <Container style={{ maxWidth: "none" }}>
+            <Container style={{ maxWidth: "none", height: "70px" }}>
                 <Toolbar disableGutters>
                     <SchoolIcon
                         color="primary"

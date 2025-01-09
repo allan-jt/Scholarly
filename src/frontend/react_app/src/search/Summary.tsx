@@ -46,13 +46,7 @@ const SummaryContent: React.FC<{ title: string; summary: SummaryItem[] }> = ({
         <Typography color="secondary" variant="subtitle2" fontWeight={500}>
             Summary
         </Typography>
-        <Box
-            sx={{
-                overflow: "auto",
-                maxHeight: { xs: "300px", md: "630px" },
-                fontSize: "14px",
-            }}
-        >
+        <Box sx={{ fontSize: "14px" }}>
             <Typography variant="body1" fontWeight={600} marginBottom={1}>
                 {title}
             </Typography>
@@ -77,10 +71,11 @@ const Summary: React.FC<SummaryProp> = ({ summary = [], status, title }) => {
             sx={{
                 position: { xs: "block", md: "fixed" },
                 width: { xs: "100%", md: "46%" },
-                // height: "-webkit-fill-available",
+                maxHeight: { xs: "40vh", md: "-webkit-fill-available" },
                 left: { xs: "0", md: "51%" },
                 padding: "10px",
                 marginBottom: "40px",
+                overflow: "auto",
                 borderRadius: "15px",
                 backgroundColor: (theme) =>
                     theme.palette.mode === "light" ? "#FAFAFE" : "#202031",
