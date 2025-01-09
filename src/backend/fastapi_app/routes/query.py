@@ -51,8 +51,9 @@ async def query(params: Annotated[QueryParams, Query()]) -> dict:
         }
         for entry, pdf_link in zip(entries, pdf_links)
     ]
+    totalResults = arxiv_response["feed"]["opensearch:totalResults"]["#text"]
 
-    return {"arxiv": arxiv_data}
+    return {"arxiv": arxiv_data, "totalResults": totalResults}
 
 
 @router.get("/advanced")
@@ -100,8 +101,9 @@ async def query_advanced(params: Annotated[AdvancedQueryParams, Query()]) -> dic
         }
         for entry, pdf_link in zip(entries, pdf_links)
     ]
+    totalResults = arxiv_response["feed"]["opensearch:totalResults"]["#text"]
 
-    return {"arxiv": arxiv_data}
+    return {"arxiv": arxiv_data, "totalResults": totalResults}
 
 
 @router.get("/summarize")
