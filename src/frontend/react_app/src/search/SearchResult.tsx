@@ -16,6 +16,7 @@ import SearchDropDown from "./SearchDropDown";
 import SearchResultTable, { Article } from "./SearchResultTable";
 import { sortByOptions, orderByOptions } from "./SearchMenuItems";
 import ErrorDisplay from "./ErrorDisplay";
+import NoResultDisplay from "./NoResultDisplay";
 import Summary, { SummaryItem } from "./Summary";
 
 const ITEMS_PER_PAGE = 5;
@@ -73,7 +74,7 @@ function SearchResult() {
         setError("");
 
         try {
-            const start = (pageNum - 1) * ITEMS_PER_PAGE + 1;
+            const start = (pageNum - 1) * ITEMS_PER_PAGE;
             const queryParams = new URLSearchParams(searchParams.toString());
             queryParams.set("start", start.toString());
             queryParams.set("max_results", ITEMS_PER_PAGE.toString());
@@ -88,6 +89,7 @@ function SearchResult() {
             );
             const result = response.data.arxiv || [];
             const count = response.data.totalResults || 0;
+            console.log(result.length);
             setResultCount(count);
             setData(Array.isArray(result) ? result : [result]);
         } catch (e) {
@@ -127,6 +129,7 @@ function SearchResult() {
     );
 
     if (error && !loading) return <ErrorDisplay />;
+    else if (resultCount < 1 && !loading) return <NoResultDisplay />;
 
     return (
         <div
@@ -207,60 +210,53 @@ function SearchResult() {
                                     />
                                 </Box>
                             </Box>
-                            {data.length === 0 ? (
-                                <Typography variant="body1" sx={{ padding: 2 }}>
-                                    No results found.
-                                </Typography>
-                            ) : (
-                                data.map((item, index) => (
-                                    <Card
-                                        key={index}
-                                        elevation={2}
+                            {data.map((item, index) => (
+                                <Card
+                                    key={index}
+                                    elevation={2}
+                                    sx={{
+                                        padding: "10px",
+                                        marginBottom: "20px",
+                                        borderRadius: "15px",
+                                        ":hover": {
+                                            boxShadow:
+                                                theme.palette.mode === "light"
+                                                    ? "0 0 10px rgba(100, 100, 100, 0.5)"
+                                                    : "0 0 15px rgba(255,255,255,.5)",
+                                        },
+                                    }}
+                                >
+                                    <SearchResultTable
+                                        id={item.id || ""}
+                                        pdf={item.pdf || ""}
+                                        title={item.title || "Untitled"}
+                                        author={item.author || []}
+                                        abstract={
+                                            item.abstract ||
+                                            "No abstract available"
+                                        }
+                                        published={item.published || ""}
+                                        updated={item.updated || ""}
+                                    />
+                                    <Button
+                                        className="search-button"
+                                        variant="contained"
+                                        color="secondary"
                                         sx={{
-                                            padding: "10px",
-                                            marginBottom: "20px",
-                                            borderRadius: "15px",
-                                            ":hover": {
-                                                boxShadow:
-                                                    theme.palette.mode ===
-                                                    "light"
-                                                        ? "0 0 10px rgba(100, 100, 100, 0.5)"
-                                                        : "0 0 15px rgba(255,255,255,.5)",
-                                            },
+                                            margin: "0 16px 16px 16px",
+                                            color: "white",
                                         }}
+                                        onClick={() =>
+                                            handleCardClick(
+                                                item.pdf,
+                                                item.title
+                                            )
+                                        }
                                     >
-                                        <SearchResultTable
-                                            id={item.id || ""}
-                                            pdf={item.pdf || ""}
-                                            title={item.title || "Untitled"}
-                                            author={item.author || []}
-                                            abstract={
-                                                item.abstract ||
-                                                "No abstract available"
-                                            }
-                                            published={item.published || ""}
-                                            updated={item.updated || ""}
-                                        />
-                                        <Button
-                                            className="search-button"
-                                            variant="contained"
-                                            color="secondary"
-                                            sx={{
-                                                margin: "0 16px 16px 16px",
-                                                color: "white",
-                                            }}
-                                            onClick={() =>
-                                                handleCardClick(
-                                                    item.pdf,
-                                                    item.title
-                                                )
-                                            }
-                                        >
-                                            Summarize
-                                        </Button>
-                                    </Card>
-                                ))
-                            )}
+                                        Summarize
+                                    </Button>
+                                </Card>
+                            ))}
                             <Pagination
                                 sx={{
                                     margin: "20px",
