@@ -57,7 +57,6 @@ function SearchResult() {
             }
             setSummaryStat("generating");
             setSummaryTitle(title);
-            console.log(`${api}/query/summarize?pdf_link=${pdf_link}`);
             const response = await axios.get(
                 `${api}/query/summarize?pdf_link=${pdf_link}`
             );
@@ -89,7 +88,6 @@ function SearchResult() {
             );
             const result = response.data.arxiv || [];
             const count = response.data.totalResults || 0;
-            console.log(result.length);
             setResultCount(count);
             setData(Array.isArray(result) ? result : [result]);
         } catch (e) {
