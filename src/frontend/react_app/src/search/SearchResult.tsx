@@ -27,9 +27,11 @@ function SearchResult() {
 
     const [searchParams, setSearchParams] = useSearchParams();
     const [data, setData] = useState<Article[]>([]);
-    const [summaryRes, setSummaryRes] = useState<SummaryItem[]>([]);
-    const [summaryTitle, setSummaryTitle] = useState("");
-    const [summaryStat, setSummaryStat] = useState("ready"); // "ready", "generating", "done", "error"
+    const [summary, setSummary] = useState({
+        items: [] as SummaryItem[],
+        title: "",
+        status: "ready", // "ready", "generating", "done", "error"
+    });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [resultCount, setResultCount] = useState(0);
@@ -47,24 +49,29 @@ function SearchResult() {
         [searchParams, setSearchParams]
     );
 
+    const handleError = useCallback((e: unknown) => {
+        setError(e instanceof Error ? e.message : "An unknown error occurred.");
+    }, []);
+
     const handleCardClick = async (pdf_link: string, title: string) => {
         if (!pdf_link) return;
 
         try {
-            // Scroll to top for sm,xs screens
             if (window.innerWidth < theme.breakpoints.values.md) {
                 window.scrollTo({ top: 0, behavior: "smooth" });
             }
-            setSummaryStat("generating");
-            setSummaryTitle(title);
+            setSummary((prev) => ({ ...prev, status: "generating", title }));
             const response = await axios.get(
                 `${api}/query/summarize?pdf_link=${pdf_link}`
             );
-            setSummaryRes(response.data.summary || []);
-            setSummaryStat("done");
-        } catch (error) {
-            console.error("Error fetching summary:", error);
-            setSummaryStat("error");
+            setSummary({
+                items: response.data.summary || [],
+                title,
+                status: "done",
+            });
+        } catch (e) {
+            console.error("Error fetching summary:", e);
+            setSummary((prev) => ({ ...prev, status: "error" }));
         }
     };
 
@@ -86,26 +93,19 @@ function SearchResult() {
             const response = await axios.get(
                 `${api}${endpoint}?${queryParams.toString()}`
             );
-            const result = response.data.arxiv || [];
-            const count = response.data.totalResults || 0;
-            setResultCount(count);
-            setData(Array.isArray(result) ? result : [result]);
+
+            setData(response.data.arxiv || []);
+            setResultCount(response.data.totalResults || 0);
         } catch (e) {
-            setError(
-                e instanceof Error ? e.message : "An unknown error occurred."
-            );
+            handleError(e);
         } finally {
             setLoading(false);
         }
-    }, [api, searchParams, pageNum, sort_by, sort_order]);
+    }, [api, searchParams, pageNum, sort_by, sort_order, handleError]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
-
-    // Handlers for dropdown and pagination
-    const handleDropdownChange = (name: string, value: string) =>
-        updateSearchParams(name, value);
 
     const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
         setPageNum(value);
@@ -127,7 +127,7 @@ function SearchResult() {
     );
 
     if (error && !loading) return <ErrorDisplay />;
-    else if (resultCount < 1 && !loading) return <NoResultDisplay />;
+    if (resultCount < 1 && !loading) return <NoResultDisplay />;
 
     return (
         <div
@@ -163,9 +163,9 @@ function SearchResult() {
                         }}
                     >
                         <Summary
-                            title={summaryTitle}
-                            summary={summaryRes}
-                            status={summaryStat}
+                            title={summary.title}
+                            summary={summary.items}
+                            status={summary.status}
                         />
                         <Box sx={{ width: { xs: "100%", md: "47%" } }}>
                             <Box
@@ -186,10 +186,7 @@ function SearchResult() {
                                         value={sort_by}
                                         options={sortByOptions}
                                         onChange={(value) =>
-                                            handleDropdownChange(
-                                                "sort_by",
-                                                value
-                                            )
+                                            updateSearchParams("sort_by", value)
                                         }
                                         selectSize="small"
                                     />
@@ -199,7 +196,7 @@ function SearchResult() {
                                         value={sort_order}
                                         options={orderByOptions}
                                         onChange={(value) =>
-                                            handleDropdownChange(
+                                            updateSearchParams(
                                                 "sort_order",
                                                 value
                                             )
