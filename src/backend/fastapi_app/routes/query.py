@@ -5,6 +5,7 @@ from models.query import QueryParams, AdvancedQueryParams, SummarizeParams
 from services import *
 from services import arxiv
 from utilities import log, log_async
+from pprint import pprint
 
 router = APIRouter()
 
@@ -30,8 +31,14 @@ async def query(params: Annotated[QueryParams, Query()]) -> dict:
         arxiv_params = params.to_arxiv()
         arxiv_response = await arxiv.fetch(**arxiv_params)
 
+    # pprint(arxiv_response)
     # Extract entries and respective PDF links
-    entries = arxiv_response["feed"]["entry"]
+    entries = []
+    if "entry" in arxiv_response["feed"]:
+        entries = arxiv_response["feed"]["entry"]
+    if not isinstance(entries, list):
+        entries = [entries]
+
     pdf_links = [
         link["@href"]
         for entry in entries
@@ -52,6 +59,7 @@ async def query(params: Annotated[QueryParams, Query()]) -> dict:
         for entry, pdf_link in zip(entries, pdf_links)
     ]
     totalResults = arxiv_response["feed"]["opensearch:totalResults"]["#text"]
+    print(totalResults, flush=True)
 
     return {"arxiv": arxiv_data, "totalResults": totalResults}
 
@@ -80,7 +88,12 @@ async def query_advanced(params: Annotated[AdvancedQueryParams, Query()]) -> dic
         arxiv_response = await arxiv.fetch(**arxiv_params)
 
     # Extract entries and respective PDF links
-    entries = arxiv_response["feed"]["entry"]
+    entries = []
+    if "entry" in arxiv_response["feed"]:
+        entries = arxiv_response["feed"]["entry"]
+    if not isinstance(entries, list):
+        entries = [entries]
+
     pdf_links = [
         link["@href"]
         for entry in entries
