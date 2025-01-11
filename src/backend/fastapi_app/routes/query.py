@@ -59,7 +59,7 @@ async def query(params: Annotated[QueryParams, Query()]) -> dict:
         for entry, pdf_link in zip(entries, pdf_links)
     ]
     totalResults = arxiv_response["feed"]["opensearch:totalResults"]["#text"]
-    print(totalResults, flush=True)
+    # print(totalResults, flush=True)
 
     return {"arxiv": arxiv_data, "totalResults": totalResults}
 
