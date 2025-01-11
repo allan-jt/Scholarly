@@ -1,6 +1,5 @@
 from typing import Optional
 from dataclasses import dataclass
-# from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter

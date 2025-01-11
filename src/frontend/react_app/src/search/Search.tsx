@@ -6,11 +6,11 @@ import "../App.css";
 function Search() {
     return (
         <div
-            className="content"
             style={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
+                overflow: "hidden",
             }}
         >
             <Typography
@@ -18,7 +18,7 @@ function Search() {
                 sx={{
                     fontSize: "60px",
                     fontWeight: 700,
-                    margin: "80px 30px 30px 30px",
+                    margin: "150px 30px 30px 30px",
                 }}
             >
                 Scholarly
