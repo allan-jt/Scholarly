@@ -14,24 +14,14 @@ class SummarizerSingleton:
             cls._instance = super(SummarizerSingleton, cls).__new__(cls)
         return cls._instance
 
-    def summarize_chunks_in_partition(self, partition):
-        core = initialize_model(Core())
-        return [summary(chunk, core) for chunk in partition]
-
-    def summarize(self, chunks: RDD) -> RDD:
-        return chunks.mapPartitions(self.summarize_chunks_in_partition)
-
-    def summarize_pdfs(self, pdfs: RDD) -> RDD:
-        def summarize_pdfs_in_partition(partition):
+    def summarize_chunked_sections(self, chunked_sections: RDD) -> RDD:
+        def summarize_chunks_in_partition(partition):
             core = initialize_model(Core())
 
-            for pdf in partition:
-                summarized_pdf = []
-                for chunk in pdf:  # Iterate over chunks in the PDF
-                    header = chunk["header"]
-                    text = chunk["text"]
-                    summarized_chunk = summary(text, core)
-                    summarized_pdf.append({"header": header, "summary": summarized_chunk["final_summary"]})
-                yield summarized_pdf
+            for chunk in partition:
+                header = chunk["header"]
+                text = chunk["text"]
+                summarized_chunk = summary(text, core)
+                yield {"header": header, "summary": summarized_chunk["final_summary"]}
 
-        return pdfs.mapPartitions(summarize_pdfs_in_partition)
+        return chunked_sections.mapPartitions(summarize_chunks_in_partition)

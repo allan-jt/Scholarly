@@ -80,15 +80,6 @@ def initialize_model(core: Core):
     map_prompt_str = config["prompt"]["map_prompt"]
     reduce_prompt_str = config["prompt"]["reduce_prompt"]
 
-    # Initialize the LLM instance
-    # os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
-    # core.llm = ChatGroq(
-    #     model=model_name,
-    #     temperature=temperature,
-    #     max_tokens=max_token,
-    #     timeout=None,
-    #     max_retries=max_retries,
-    # )
     os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
     core.llm = ChatOpenAI(
         model=model_name,

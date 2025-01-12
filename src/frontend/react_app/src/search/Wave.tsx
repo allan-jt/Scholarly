@@ -35,7 +35,7 @@ export default function Wave() {
             </div>
             <ul className="social-icons">
                 <li>
-                    <a href="/">
+                    <a href="https://github.com/allan-jt/Scholarly">
                         <GitHubIcon fontSize="large" />
                     </a>
                 </li>

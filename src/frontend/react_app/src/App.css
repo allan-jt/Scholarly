@@ -11,7 +11,7 @@ body,
 }
 
 .content {
-    margin-top: 8vh;
+    margin-top: 70px;
 }
 
 .nav-menu #text {
@@ -77,6 +77,7 @@ footer .wave#wave4 {
 }
 
 footer .social-icons {
+    z-index: 1001;
     padding: 0;
     position: relative;
     display: flex;
