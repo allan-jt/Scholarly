@@ -3,7 +3,6 @@
 Scholarly is a web application that assists researchers in conducting literature reviews by providing detailed summaries of papers relevant to their search queries. It’s intended to demonstrate the use of [Apache Spark](https://en.wikipedia.org/wiki/Apache_Spark), a big data tool that can process large datasets in parallel by distributing tasks across a cluster of computers. 
 
 ## Table of Contents
-- [Scholarly](#scholarly)
 - [Usage](#usage)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
