@@ -1,6 +1,6 @@
 # Scholarly
 
-Scholarly is a web application that assists researchers in conducting literature reviews by providing detailed summaries of papers relevant to their search queries. It’s intended to demonstrate the use of [Apache Spark](https://en.wikipedia.org/wiki/Apache_Spark), a big data tool that can process large datasets in parallel by distributing tasks across a cluster of computers. 
+Scholarly is a web application that assists researchers in conducting literature reviews by providing detailed summaries of papers relevant to their search queries. It’s intended to demonstrate the use of [Apache Spark](https://en.wikipedia.org/wiki/Apache_Spark), a big data tool that can process large datasets in parallel by distributing tasks across a cluster of computers. In this way, Spark enables us to process large amounts of data more efficiently than we can on a single compute. 
 
 ## Table of Contents
 - [Usage](#usage)
@@ -17,6 +17,9 @@ Scholarly is a web application that assists researchers in conducting literature
 4. Create an `.env` file following the structure of `.env.example` and insert your OpenAI API Key  
 5. Go into the root directory (`cd Scholarly`)   
 6. Enter `make all` in the terminal to start the project
+7. Access the web app at `http://localhost:5173/`
+
+Note: The `.env.example` configures Spark to simulate a cluster of computers using the local machine's processes since a real cluster wasn't available to us. Consequently, summarizing a paper is relatively slow.
 
 ## Features
 
